@@ -80,9 +80,11 @@ IAM / 공통 코드 / 프로필 / 공지 / 일정 / 대시보드 (상세는 spec
 3. `/dev <slice>` — TDD 개발 → 리뷰 → 테스트 → 커밋
 
 ## 현재 상태
-- **Phase**: 0 (기초 세팅 전)
-- **스캐폴딩**: 미완료 — `docs/legacy/NEW-PROJECT-SPEC.md` Phase 0 로드맵대로 진행 예정
+- **Phase**: 초기 세팅 진행 중 (`docs/setup.md` 참조)
+- **Step 1 완료**: `pnpm dlx create-turbo@latest .`로 Turborepo 골격 설치. starter가 만든 demo는 `apps/{web,docs}` + `packages/{ui,eslint-config,typescript-config}`. Step 2/3에서 admin/api로 갈아엎을 예정.
+- **다음**: Step 2 — apps/admin (Next.js 16) → Step 3 — apps/api (NestJS 11) → Step 4 — packages/ui + packages/types
 - **참고 문서**:
+  - `docs/setup.md` — 초기 세팅 진행 체크리스트 (사용자/에이전트 분담)
   - `docs/legacy/NEW-PROJECT-SPEC.md` — 전체 설계 명세 (원본)
   - `docs/legacy/01~09.md` — 레거시 프로젝트 학습 자료 (참고용)
   - `docs/harness.md` — 훅 설계
