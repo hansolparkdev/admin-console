@@ -51,24 +51,31 @@
 
 ## Step 2 — apps/admin (Next.js 16)
 
-- [ ] (사용자) `cd apps && pnpm dlx create-next-app@latest admin` (대화형)
-  - 답할 프롬프트:
-    - TypeScript: ___
-    - ESLint: ___
-    - Tailwind CSS: ___
-    - `src/` directory: ___
-    - App Router: ___
-    - Turbopack: ___
-    - import alias: ___ (예: `@/*`)
-- [ ] (에이전트) `apps/admin/package.json`:
+- [x] (에이전트) starter demo apps 정리: `apps/web`, `apps/docs` 삭제
+- [x] (사용자) `pnpm dlx create-next-app@latest apps/admin` (루트에서 실행, 대화형)
+  - 답: TypeScript Yes / ESLint Yes / Tailwind Yes / src/ Yes / App Router Yes / Turbopack Yes / alias `@/*` Yes
+  - 결과: Next.js 16.2.3 + React 19.2.4 + Tailwind 4 + Turbopack default
+- [x] (에이전트) create-next-app이 만든 잡파일 정리:
+  - `apps/admin/pnpm-workspace.yaml` 삭제 (`ignoredBuiltDependencies: [sharp, unrs-resolver]`는 루트 `pnpm-workspace.yaml`로 이전)
+  - `apps/admin/pnpm-lock.yaml` 삭제 (루트 lockfile만 사용)
+  - `apps/admin/CLAUDE.md` 삭제 (한 줄짜리 reference만 있음)
+  - `apps/admin/AGENTS.md` 유지 (Next.js 16 deprecation 가이드 — 에이전트 참고용)
+  - `apps/admin/node_modules` 삭제 (루트에서 hoist)
+- [x] (에이전트) `apps/admin/package.json`:
   - `name` → `@admin-console/admin`
-  - `version` → `0.0.0`
-- [ ] (에이전트) 포트 확인 — admin은 :3000 (Next.js 기본 유지)
-- [ ] (에이전트) 검증:
-  - `pnpm install`
-  - `pnpm --filter @admin-console/admin dev` → `curl -sf -o /dev/null -w "%{http_code}\n" http://localhost:3000/` 200
-  - `pnpm --filter @admin-console/admin build` 성공
-- **결정 기록**: ___
+  - `version` → `0.1.0` → `0.0.0`
+  - `check-types` 스크립트 추가 (`tsc --noEmit`)
+- [x] (에이전트) 포트 확인 — admin은 :3000 (Next.js 기본 유지)
+- [x] (에이전트) 검증:
+  - `pnpm install` (루트) → 5 workspace projects, hoist 성공
+  - `pnpm --filter @admin-console/admin build` → ✓ Compiled successfully
+  - `pnpm --filter @admin-console/admin dev` → `curl http://localhost:3000/` HTTP 200
+- **결정 기록 (2026-04-15)**:
+  - `src/` 디렉토리 — 첫 시도에서 No로 답해서 다시 만들었음. CLAUDE.md "핵심 폴더 규칙"이 `src/app/...` 기반이라 src/ Yes 필수.
+  - Tailwind: Yes (Step 4 packages/ui와 자연 짝)
+  - Turbopack: Yes (Next 15+ stable, default)
+  - `AGENTS.md` 보존 — Next.js 16 안내(에이전트가 next 코드 짤 때 docs 참조)
+  - admin 자체 lockfile은 만들지 않음. 루트 `pnpm-lock.yaml` 단일.
 
 ## Step 3 — apps/api (NestJS 11)
 
@@ -131,3 +138,4 @@ pnpm lint
 
 - `2026-04-15` — 문서 생성 (docs/setup.md). plan 승인됨.
 - `2026-04-15` — Step 1 turborepo starter 설치. 충돌로 백업→설치→복원 우회. .git은 백업 것 채택. 루트 설정 정렬(packageManager 10.33.0, engines.node ">=22 <23", license Apache-2.0). demo apps/packages는 보존(Step 2~4에서 정리).
+- `2026-04-15` — Step 2 apps/admin (Next.js 16.2.3 + Tailwind 4 + Turbopack). starter demo apps(web/docs) 삭제. create-next-app 16의 새 동작(중첩 워크스페이스 생성)을 정리(pnpm-workspace/lock/CLAUDE.md 제거, AGENTS.md 보존). package.json name → `@admin-console/admin`. dev :3000 200 검증.
