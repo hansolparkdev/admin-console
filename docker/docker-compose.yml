@@ -1,0 +1,64 @@
+name: admin-console
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: admin-console-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-admin_console}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin_console}
+      POSTGRES_DB: ${POSTGRES_DB:-admin_console}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - admin_console_pg_data:/var/lib/postgresql/data
+      - ./postgres-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-admin_console} -d ${POSTGRES_DB:-admin_console}",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0
+    container_name: admin-console-keycloak
+    restart: unless-stopped
+    command: ["start-dev"]
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN:-admin}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/${KC_DB_NAME:-keycloak}
+      KC_DB_USERNAME: ${POSTGRES_USER:-admin_console}
+      KC_DB_PASSWORD: ${POSTGRES_PASSWORD:-admin_console}
+      KC_HEALTH_ENABLED: "true"
+      KC_HTTP_ENABLED: "true"
+      KC_HOSTNAME_STRICT: "false"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "${KEYCLOAK_PORT:-8080}:8080"
+
+  # Redis is intentionally omitted until SSE / cache slice lands.
+  # Re-add when needed:
+  #
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: admin-console-redis
+  #   restart: unless-stopped
+  #   ports:
+  #     - "${REDIS_PORT:-6379}:6379"
+  #   healthcheck:
+  #     test: ["CMD", "redis-cli", "ping"]
+  #     interval: 5s
+  #     timeout: 3s
+  #     retries: 10
+
+volumes:
+  admin_console_pg_data:

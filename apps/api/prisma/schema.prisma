@@ -1,0 +1,20 @@
+// Prisma schema — admin-console
+// docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+// datasource URL is configured in prisma.config.ts (Prisma 7 convention).
+datasource db {
+  provider = "postgresql"
+}
+
+// Minimal placeholder so the first migration isn't empty.
+// Actual RBAC/IAM models land in a later slice.
+model HealthCheck {
+  id        Int      @id @default(autoincrement())
+  note      String
+  createdAt DateTime @default(now())
+}

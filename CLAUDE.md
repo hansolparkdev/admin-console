@@ -110,7 +110,20 @@ packages/
 | `pnpm format`    | prettier --write                                             |
 | `pnpm audit`     | 의존 보안 스캔                                               |
 
-DB/인프라 명령(`docker compose up -d postgres ...` 등)은 DB 인프라 셋업 후 추가.
+### 인프라 명령
+
+| 명령                                                       | 의미                                   |
+| ---------------------------------------------------------- | -------------------------------------- |
+| `docker compose -f docker/docker-compose.yml up -d`        | postgres + keycloak 기동               |
+| `docker compose -f docker/docker-compose.yml down`         | 컨테이너 중지·제거 (볼륨 유지)         |
+| `docker compose -f docker/docker-compose.yml down -v`      | + 볼륨 초기화 (init SQL 재실행 필요 시) |
+| `pnpm --filter @admin-console/api db:migrate`              | Prisma migration dev 적용              |
+| `pnpm --filter @admin-console/api db:generate`             | Prisma client 재생성                   |
+| `pnpm --filter @admin-console/api db:studio`               | Prisma Studio GUI                      |
+
+- Postgres: `localhost:5432` (user/pw: `admin_console`/`admin_console`, DBs: `admin_console`, `keycloak`)
+- Keycloak: `http://localhost:8080` (admin/admin)
+- Redis는 SSE 슬라이스 전까지 미포함 (`docker/docker-compose.yml`에 주석으로 남음).
 
 ## 개발 흐름
 

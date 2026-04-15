@@ -262,6 +262,52 @@ shadcn/ui (Radix + Tailwind 4 + CVA) 기반 디자인 시스템 부트스트랩.
 
 ---
 
+## Step 7 — DB 인프라 (PostgreSQL + Keycloak + Prisma)
+
+### 목표
+도메인 기능 개발 시작 전 데이터 저장소를 준비. admin-console과 Keycloak이 같은 PostgreSQL 인스턴스를 쓰되 논리적으로는 분리된 DB 2개(`admin_console`, `keycloak`)로 동작.
+
+### 결정 사항 (확정 — 2026-04-15)
+1. **PostgreSQL 16-alpine** — admin-console 스펙 확정
+2. **Keycloak 26.0** (공식 이미지, `start-dev` 모드 — 개발 편의)
+3. **Redis 제외** — 후속 SSE 슬라이스에서 재도입 (docker-compose.yml에 주석으로 남겨둠)
+4. **DB 분리**: 같은 Postgres 인스턴스, `admin_console` + `keycloak` DB 두 개. init SQL로 keycloak DB 자동 생성
+5. **Prisma 7** — driver adapter 패턴 (`@prisma/adapter-pg` + `pg`). Prisma 7은 schema.prisma의 `datasource.url = env(...)` 폐기 → `prisma.config.ts`로 이관
+6. **env 로딩**: 루트 `.env` 단일. api는 cwd 위로 walking해서 .env 찾는 헬퍼로 로드 (`loadRootEnv` in `apps/api/src/main.ts`)
+7. **첫 모델**: `HealthCheck`(placeholder) — 실제 RBAC/IAM은 후속 슬라이스
+8. **헬스 엔드포인트**: `GET /health` → `{status:"ok", db:"up"|"down"}` (Prisma `$queryRaw SELECT 1`)
+9. **PrismaService 싱글톤**: Nest `@Global()` module. CLAUDE.md 금지 패턴(매 요청 new) 준수
+
+### 체크리스트
+- [x] (에이전트) `docker/docker-compose.yml` 작성 (postgres + keycloak, redis는 주석)
+- [x] (에이전트) `docker/postgres-init/01-create-keycloak-db.sql` (keycloak DB 자동 생성)
+- [x] (에이전트) 루트 `.env.example` 작성 (POSTGRES_*, DATABASE_URL, KEYCLOAK_*, API_PORT, API_URL)
+- [x] (에이전트) `.env` 생성 (`.env.example` 복사)
+- [x] (에이전트) 이전 `axis-*` 컨테이너 3개(postgres/keycloak/redis) 삭제 (5432 포트 점유 해소)
+- [x] (에이전트) `pnpm add --filter @admin-console/api prisma @prisma/client @prisma/adapter-pg pg dotenv`
+- [x] (에이전트) `apps/api/prisma/schema.prisma` 작성 (driverAdapters preview + HealthCheck 모델)
+- [x] (에이전트) `apps/api/prisma.config.ts` (Prisma 7 config — migrations 경로 + datasource.url)
+- [x] (에이전트) `prisma migrate dev --name init` → `20260415071717_init` 생성
+- [x] (에이전트) `PrismaService`(NestJS `OnModuleInit/Destroy` + adapter-pg) + `PrismaModule` (`@Global()`)
+- [x] (에이전트) `HealthController` (`/health` 엔드포인트 + $queryRaw 체크)
+- [x] (에이전트) `apps/api/src/main.ts` `loadRootEnv` 헬퍼 (cwd upward walking으로 .env 위치)
+- [x] (에이전트) api `package.json` 스크립트: `db:generate`, `db:migrate`, `db:migrate:deploy`, `db:studio`
+- [x] (에이전트) 검증:
+  - `docker compose up -d postgres` → healthy
+  - `prisma migrate dev` → 마이그레이션 적용
+  - `pnpm --filter @admin-console/api build` 성공
+  - `start:dev` → `Prisma connected` 로그 + `/health` HTTP 200 `{"status":"ok","db":"up"}`
+  - `docker compose up -d keycloak` → 30초 내 `http://localhost:8080/realms/master` HTTP 200
+
+### 결정 기록
+- 2026-04-15: Redis 제외. NEW-PROJECT-SPEC에 스택 명시돼있지만 현재 유스케이스(단일 인스턴스)에서 불필요. SSE 슬라이스(Phase 8 대응)에서 재도입.
+- 2026-04-15: Prisma 7 driver adapter 사용 (`adapter: new PrismaPg({ connectionString })`). Prisma 6 이하의 `datasources: { db: { url } }` 방식은 지원 종료.
+- 2026-04-15: Keycloak DB를 같은 postgres 인스턴스에 `keycloak` DB로 분리. `docker/postgres-init/*.sql`로 첫 부트 시 자동 생성. 변경 시 `docker compose down -v`로 볼륨 초기화 필요.
+- 2026-04-15: `.env` 루트 단일. api가 실행 위치와 상관 없이 `loadRootEnv`로 찾음. Prisma CLI(`prisma.config.ts`)는 별도 `dotenv/config` 로드.
+- 2026-04-15: 이전 `axis-*` 컨테이너가 5432 점유 상태였음 → 제거. 이전 Phase 0 잔재.
+
+---
+
 ## 진행 로그
 
 작업하면서 결정·이슈를 시간순으로 추가.
@@ -275,3 +321,7 @@ shadcn/ui (Radix + Tailwind 4 + CVA) 기반 디자인 시스템 부트스트랩.
 - `2026-04-15` — Step 5 디자인 시스템. shadcn v4.2 + Nova preset + Radix 통합 패키지. admin 내부에 Button/Card/Input 설치. Tailwind 4 CSS-only config. packages/ui는 placeholder 유지(방향 B 전환, 이유는 Step 5 §방향 전환 참조). build 통과 검증.
 - `2026-04-15` — 로드맵 재정렬. "지금 당장 다음 작업을 잠금해제하는가?" 기준. Storybook/config 통합/CI/dependabot/거버넌스/commitlint 모두 우선순위 B로 이동. 우선순위 A: Husky → DB → BFF → 인증 → RBAC → (SDD 진입).
 - `2026-04-15` — Step 6 Husky + lint-staged. 커밋 하네스. `prepare: husky`, `.husky/pre-commit: pnpm exec lint-staged`, `package.json lint-staged: prettier --write`. ESLint는 각 앱 config 차이로 lint-staged에서 제외 (후속 config 통합 슬라이스에서 재검토). hook 동작 검증 완료.
+- `2026-04-15` — Prettier markdown 제외. `*glob*` 같은 내용을 italic으로 재작성해 의미 변형 문제 3회 발생 → `.prettierignore`에 `*.md` 추가. 코드 파일은 prettier 유지.
+- `2026-04-15` — CLAUDE.md 축소. 규약만 담기로 합의 (진행 상황·참고 문서·이전 레퍼런스 제거). 금지 패턴 12개 섹션 신설. `/dev` 스킬에서 자동 커밋 Step 제거(아카이브까지만).
+- `2026-04-15` — E2E 명령 기본 `--headed`로 전환 (시각 확인 우선, headless는 CI). api/main.ts `bootstrap()` floating promise 수정.
+- `2026-04-15` — Step 7 DB 인프라. PostgreSQL 16 + Keycloak 26 컨테이너, Prisma 7 driver adapter(adapter-pg), 첫 migration(HealthCheck), `/health` 엔드포인트(DB ping) 검증 완료. Redis는 SSE 슬라이스까지 보류.
