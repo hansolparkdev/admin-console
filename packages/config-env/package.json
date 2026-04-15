@@ -1,0 +1,8 @@
+{
+  "name": "@admin-console/config-env",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "Apache-2.0",
+  "description": "공유 환경변수 스키마 (Phase 1/2에서 admin/api 소비처와 함께 zod 스키마 주입 예정)"
+}
