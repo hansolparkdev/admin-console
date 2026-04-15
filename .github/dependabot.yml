@@ -19,7 +19,7 @@ updates:
         patterns:
           - "@playwright/*"
 
-  - package-ecosystem: "docker"
+  - package-ecosystem: "docker-compose"
     directory: "/docker"
     schedule:
       interval: "weekly"
