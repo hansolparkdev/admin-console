@@ -1,0 +1,34 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: admin-console-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-admin_console}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin_console}
+      POSTGRES_DB: ${POSTGRES_DB:-admin_console}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - admin_console_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-admin_console}"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+
+  redis:
+    image: redis:8-alpine
+    container_name: admin-console-redis
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - admin_console_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+
+volumes:
+  admin_console_pg_data:
+  admin_console_redis_data:

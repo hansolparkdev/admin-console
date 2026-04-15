@@ -1,0 +1,13 @@
+{
+  "name": "@admin-console/config-ts",
+  "version": "0.0.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "description": "공유 TypeScript 설정 프리셋 (base / node / nextjs)",
+  "files": ["base.json", "node.json", "nextjs.json"],
+  "exports": {
+    "./base.json": "./base.json",
+    "./node.json": "./node.json",
+    "./nextjs.json": "./nextjs.json"
+  }
+}
