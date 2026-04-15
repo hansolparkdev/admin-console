@@ -18,7 +18,7 @@
     "dev": "turbo run dev",
     "lint": "turbo run lint --continue && eslint .",
     "typecheck": "turbo run typecheck",
-    "test": "turbo run test",
+    "test": "turbo run test --continue && vitest run",
     "test:e2e": "turbo run test:e2e",
     "prepare": "husky"
   },
@@ -33,7 +33,10 @@
   },
   "devDependencies": {
     "@admin-console/config-eslint": "workspace:*",
+    "@admin-console/testing": "workspace:*",
     "@eslint/js": "^9.17.0",
+    "@playwright/test": "^1.59.1",
+    "@vitest/coverage-v8": "^4.1.4",
     "eslint": "^9.17.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import": "^2.32.0",
@@ -44,6 +47,7 @@
     "prettier": "^3.8.3",
     "turbo": "^2.9.6",
     "typescript": "^6.0.2",
-    "typescript-eslint": "^8.58.2"
+    "typescript-eslint": "^8.58.2",
+    "vitest": "^4.1.4"
   }
 }

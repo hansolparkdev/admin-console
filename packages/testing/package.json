@@ -4,5 +4,20 @@
   "private": true,
   "type": "module",
   "license": "Apache-2.0",
-  "description": "Vitest/Playwright 공용 설정 (Phase 0 Slice 03은 placeholder, Slice 06에서 config 함수 export 예정)"
+  "description": "Vitest/Playwright 공용 설정",
+  "main": "./index.js",
+  "exports": {
+    ".": "./index.js",
+    "./vitest": "./vitest.js",
+    "./playwright": "./playwright.js"
+  },
+  "files": [
+    "index.js",
+    "vitest.js",
+    "playwright.js"
+  ],
+  "peerDependencies": {
+    "vitest": "^4.0.0",
+    "@playwright/test": "^1.50.0"
+  }
 }
