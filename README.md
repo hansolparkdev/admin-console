@@ -39,6 +39,8 @@ pnpm lint        # exit 0
 ## 문서
 
 - [`CLAUDE.md`](CLAUDE.md) — 프로젝트 개요·스택·폴더 규칙
+- [`docs/plans/phase-0-foundation/plan.md`](docs/plans/phase-0-foundation/plan.md) — Phase 0 기획
+- [`docs/legacy/NEW-PROJECT-SPEC.md`](docs/legacy/NEW-PROJECT-SPEC.md) — 전체 설계 명세 (레거시 코드네임 `axis` = `admin-console`)
 - [`docs/DESIGN.md`](docs/DESIGN.md) — 디자인 토큰
 - [`docs/harness.md`](docs/harness.md) — Claude Code 훅 설계
 
