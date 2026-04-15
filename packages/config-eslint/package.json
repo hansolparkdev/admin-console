@@ -4,10 +4,15 @@
   "private": true,
   "type": "module",
   "license": "Apache-2.0",
-  "description": "공유 ESLint 프리셋 (Phase 0 Slice 03은 placeholder, Slice 04에서 실제 규칙 주입)",
+  "description": "공유 ESLint 프리셋 (base flat config)",
+  "peerDependencies": {
+    "eslint": "^9.0.0"
+  },
   "main": "./index.js",
   "exports": {
     ".": "./index.js"
   },
-  "files": ["index.js"]
+  "files": [
+    "index.js"
+  ]
 }
