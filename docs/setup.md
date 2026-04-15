@@ -171,48 +171,46 @@ pnpm lint
 
 ---
 
-## Step 5 — 디자인 시스템 (`packages/ui` 채우기)
+## Step 5 — 디자인 시스템 (`apps/admin` 내부)
 
 ### 목표
-shadcn/ui + Tailwind 4 + CVA 기반 디자인 시스템 부트스트랩. 첫 컴포넌트로 admin/api 도메인 화면이 의존할 베이스 마련.
+shadcn/ui (Radix + Tailwind 4 + CVA) 기반 디자인 시스템 부트스트랩. admin 내부에서 먼저 성장시킴.
+
+### 방향 전환 (2026-04-15)
+
+최초 계획은 `packages/ui`에 직접 shadcn init이었으나, **shadcn 최신 CLI(v4.2)는 Next.js 앱 디렉토리 기준 동작이 기본**이며 Nova preset 선택 후 init + Button 설치까지 한 번에 완료해버린다. packages/ui로 억지로 이전하면:
+- `components.json` aliases를 상대경로로 교정해야 함
+- packages/ui의 tsconfig에 paths alias 설정 필요
+- shadcn `add` 명령을 쓸 때마다 경로 문제 재발 가능
+
+→ **admin 내부에 두는 방식(B)으로 전환**. `packages/ui`는 **"admin+api가 공유할 진짜 공용 UI만 나중에 승격"** 용으로 재정의(현재 비어있음). 파생 프로젝트(admin-mes 등) 분기 시점에 자연스럽게 packages/ui로 승격 결정.
 
 ### 결정 사항 (확정 — 2026-04-15)
-1. **shadcn 도입 위치**: `packages/ui`에 직접 (모노레포 표준 패턴)
-2. **첫 컴포넌트**: **Button + Card + Input** 3개 (동작·패턴 확립이 목적, 추가는 후속 Step)
-3. **Tailwind preset 위치**: `packages/ui/tailwind.preset.js`로 지금 export (admin이 바로 사용)
-4. **export 방식**: 컴포넌트별 path (`@admin-console/ui/button`) — tree-shaking + shadcn convention 일치
-5. **다크모드**: 이번 Step 포함 (CSS variables 셋업 시 자연 통합)
-6. **`cn` util**: `packages/ui/src/lib/utils.ts` (clsx + tailwind-merge)
-7. **Tailwind 4**: admin에 이미 설치된 `tailwindcss@^4` + `@tailwindcss/postcss` 그대로 사용
-
-### 분담
-- 사용자: `pnpm dlx shadcn@latest init` 대화형 CLI (필요 시 의존성 설치도)
-- 에이전트: 정리·preset 분리·`packages/ui` exports/path 셋업·admin 통합·검증·커밋
+1. **shadcn 도입 위치**: `apps/admin/` 내부 — `components.json`/`src/components/ui/`/`src/lib/utils.ts`가 admin에 속함
+2. **Style preset**: Nova (Lucide icons + Geist font, Radix 기반) — shadcn CLI v4.2 선택
+3. **첫 컴포넌트**: Button + Card + Input (3개 확정)
+4. **Tailwind 4 방식**: CSS-only config — `src/app/globals.css` 안에 `@import "tailwindcss"` + `@import "shadcn/tailwind.css"` + `@custom-variant dark` + `@theme inline` 블록 + CSS variables. **tailwind.config.ts 없음** (Tailwind 4 default)
+5. **다크모드**: `.dark` class 기반 (CSS variables로 자동). 토글 UI는 후속 슬라이스
+6. **`cn` util**: `apps/admin/src/lib/utils.ts` (clsx + tailwind-merge, shadcn 생성)
+7. **의존성**: `radix-ui`(통합 패키지), `lucide-react`, `class-variance-authority`, `clsx`, `tailwind-merge`, `tw-animate-css`, `shadcn` (admin의 dependencies로)
+8. **`packages/ui` 현 상태**: placeholder 유지(workspace:* 등록은 그대로). 진짜 공용 승격은 후속
+9. **`CLAUDE.md` 갱신**: 워크스페이스 구조(목표)의 `packages/ui` 설명에 "현재는 admin 내부, 공유 대상만 승격" 주석 추가
 
 ### 체크리스트
-- [ ] (사용자) `cd packages/ui && pnpm dlx shadcn@latest init` 실행 (대화형)
-  - 답할 프롬프트 (예상): style(`new-york` 권장), base color(`zinc`), CSS variables(Yes), components path, utils path, RSC(Yes/No 미정 — packages이라 상관 없음)
-- [ ] (에이전트) shadcn이 만든 잡파일 정리:
-  - `packages/ui/components.json` 유지 (shadcn add 시 필요)
-  - `packages/ui/tsconfig.json` 손상되면 우리 것으로 복원
-  - `packages/ui/package.json` 의존 정리(class-variance-authority, clsx, tailwind-merge, tailwindcss-animate, lucide-react 정도)
-- [ ] (사용자) `pnpm dlx shadcn@latest add button card input` (3개)
-- [ ] (에이전트) `packages/ui/src/lib/utils.ts` (cn) 확인
-- [ ] (에이전트) Tailwind preset 분리: `packages/ui/tailwind.preset.js` (color tokens + animations + dark mode + content scan paths)
-- [ ] (에이전트) `packages/ui/package.json` exports 컴포넌트별 path 등록 (`./button`, `./card`, `./input`, `./lib/utils`, `./tailwind.preset`)
-- [ ] (에이전트) `apps/admin` 통합:
-  - `apps/admin/tailwind.config.ts` 또는 `app/globals.css`에 ui preset 참조 추가
-  - `app/page.tsx`에 Button 임포트해 동작 확인 (검증 후 제거 또는 유지)
-  - 다크모드 토글: `<html className="dark">` 또는 `next-themes` (이번 Step에 포함하되 next-themes 도입 여부는 작업 중 결정)
-- [ ] (에이전트) 검증:
-  - `pnpm install` 워크스페이스 링크 OK
-  - `pnpm --filter @admin-console/admin build` 통과
-  - `pnpm --filter @admin-console/admin dev` :3000 200 + Button 시각 확인
-  - `pnpm exec turbo run check-types` 통과
+- [x] (사용자) `cd apps/admin && pnpm dlx shadcn@latest init` 실행
+  - 답: component library = Radix / preset = Nova. 이후 자동 완료(Button + utils + globals.css + deps까지 설치됨)
+- [x] (사용자) `pnpm dlx shadcn@latest add card input` (Card, Input 추가)
+- [x] (에이전트) 생성물 검토: `components.json`, `src/lib/utils.ts`, `src/components/ui/{button,card,input}.tsx`, `src/app/globals.css` CSS variables + dark mode
+- [x] (에이전트) 검증:
+  - `pnpm install` 성공
+  - `apps/admin/src/app/page.tsx`에 Button/Card/Input 임포트 → `pnpm --filter @admin-console/admin build` 통과 → import 제거
+- [x] (에이전트) setup.md + CLAUDE.md 갱신
 - [ ] (에이전트) 커밋
 
-### 결정 기록 (작업 진행 중 갱신)
-- ___
+### 결정 기록
+- 2026-04-15: 방향 B 전환. packages/ui는 placeholder 유지, shadcn은 admin에. 이유는 §방향 전환 참조.
+- 2026-04-15: Tailwind 4 CSS-only config — `tailwind.config.ts` 파일 만들지 않음. Nova preset이 globals.css에 모든 theme/variants 삽입.
+- 2026-04-15: `radix-ui` 통합 패키지(^1.4.3)로 설치됨 — 개별 `@radix-ui/react-*` 대신. shadcn v4.2 convention.
 
 ---
 
@@ -226,3 +224,4 @@ shadcn/ui + Tailwind 4 + CVA 기반 디자인 시스템 부트스트랩. 첫 컴
 - `2026-04-15` — Step 3 apps/api (NestJS 11.0.1, jest 기본). package.json name → `@admin-console/api`, license Apache-2.0, check-types/dev script 추가. main.ts 포트 3001. build + dev :3001 "Hello World!" 검증.
 - `2026-04-15` — Step 4 packages/ui + packages/types 빈 껍데기 생성. starter packages 3개(ui/eslint-config/typescript-config) 삭제. admin/api에 workspace:* 의존 등록. import 검증 후 turbo build 2 tasks 성공.
 - `2026-04-15` — 셋업 트랙 범위 재확정 합의. SDD 풀 루프는 도메인 기능부터(IAM CRUD 등). 그 전 디자인 시스템·Storybook·config·BFF·DB·인증 등 인프라성 작업은 모두 setup.md에 Step 5~14로 누적. 메모리(`feedback_sdd_vs_plan.md`) 갱신.
+- `2026-04-15` — Step 5 디자인 시스템. shadcn v4.2 + Nova preset + Radix 통합 패키지. admin 내부에 Button/Card/Input 설치. Tailwind 4 CSS-only config. packages/ui는 placeholder 유지(방향 B 전환, 이유는 Step 5 §방향 전환 참조). build 통과 검증.

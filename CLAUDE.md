@@ -18,13 +18,15 @@ apps/
 ├── admin/          Next.js 16 App Router (어드민 콘솔)
 └── api/            NestJS 11 (REST + Prisma 7 + PostgreSQL 16)
 packages/
-├── ui/             디자인 시스템 (shadcn/ui + Tailwind 4 + Storybook)
-├── types/          공유 타입
-├── api-client/     OpenAPI 자동 생성 클라이언트
-├── config-eslint/  공유 ESLint preset
-├── config-tailwind/공유 Tailwind preset
-└── config-ts/      공유 tsconfig
+├── ui/             (현재 placeholder — 디자인 시스템은 apps/admin 내부에서 성장 중. 공유 승격 대상만 이후 이동)
+├── types/          공유 타입 (현재 placeholder)
+├── api-client/     OpenAPI 자동 생성 클라이언트 (후속)
+├── config-eslint/  공유 ESLint preset (후속)
+├── config-tailwind/공유 Tailwind preset (후속)
+└── config-ts/      공유 tsconfig (후속)
 ```
+
+> 실제 디자인 시스템(shadcn/ui + Radix + Tailwind 4 + CVA)은 `apps/admin/src/components/ui/` 및 `apps/admin/components.json`. 파생 프로젝트 분기 시점에 공용 컴포넌트를 `packages/ui`로 승격.
 
 ## 기술 스택 (확정)
 - **언어**: TypeScript (strict)
@@ -80,18 +82,20 @@ IAM / 공통 코드 / 프로필 / 공지 / 일정 / 대시보드 (상세는 spec
 3. `/dev <slice>` — TDD 개발 → 리뷰 → 테스트 → 커밋
 
 ## 현재 상태
-- **초기 세팅 완료** (`docs/setup.md` Step 1~4):
-  - 모노레포: Turborepo + pnpm workspace
-  - `apps/admin`: Next.js 16.2.3 + React 19 + Tailwind 4 + Turbopack (:3000)
-  - `apps/api`: NestJS 11.0.1 + jest (:3001)
-  - `packages/ui`, `packages/types`: 빈 껍데기 (workspace:* 등록됨)
-- **다음 후보 슬라이스**:
-  1. 디자인 시스템 (`packages/ui` 채우기 — shadcn/ui + Storybook)
-  2. config 통합 (`packages/config-{ts,eslint,tailwind}`)
-  3. BFF 골격 (`apps/admin/src/app/api/[...proxy]/route.ts`)
-  4. DB 스택 (Prisma + PostgreSQL + docker-compose)
-  5. 인증 (Keycloak + Auth.js)
-  6. 품질/CI (Husky + lint-staged + GitHub Actions)
+- **셋업 트랙 진행 중** (`docs/setup.md`):
+  - Step 1~4 ✅ 부트스트랩: Turborepo + pnpm, admin(Next 16 + Tailwind 4 + Turbopack, :3000), api(NestJS 11, :3001), packages/ui+types placeholder
+  - Step 5 ✅ 디자인 시스템: shadcn v4.2 Nova preset. Radix + Lucide + Geist. admin 내부에 Button/Card/Input. CSS-only Tailwind 4 config
+- **다음 Step 후보** (setup.md §셋업 트랙 로드맵):
+  6. Storybook
+  7. config 통합 패키지
+  8. Husky + lint-staged + commitlint
+  9. GitHub Actions CI
+  10. dependabot + 거버넌스
+  11. DB 인프라 (docker-compose + Prisma)
+  12. BFF route handler 골격
+  13. 인증 (Keycloak + Auth.js)
+  14. RBAC 인프라
+- **이후**: IAM 관리자 CRUD부터 SDD 풀 루프(`/planning iam-admin`)
 - **참고 문서**:
   - `docs/setup.md` — 초기 세팅 작업 일지 (Step 1~4 완료 기록)
   - `docs/legacy/NEW-PROJECT-SPEC.md` — 전체 설계 명세 (원본)
