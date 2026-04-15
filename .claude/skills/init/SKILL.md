@@ -202,12 +202,13 @@ Turborepo | Nx | pnpm workspace
 
 ## 워크스페이스 구조
 
+```
 apps:
-
-- web: {스택}
-- api: {스택}
-  packages:
-- ui / utils / ...
+  - web: {스택}
+  - api: {스택}
+packages:
+  - ui / utils / ...
+```
 
 ## 전체 빌드 / 테스트
 
@@ -215,10 +216,10 @@ apps:
 
 ## 패키지별 CLAUDE.md
 
-각 apps/_, packages/_/CLAUDE.md 참조.
+각 `apps/*`, `packages/*`/CLAUDE.md 참조.
 ```
 
-**각 apps/_, packages/_ 루프**: package.json 읽어 스택 감지 → 각 디렉토리에 단일 프로젝트 형식 CLAUDE.md 생성. 감지 불명확한 항목만 유저에게 한 번에 확인:
+**각 `apps/*`, `packages/*` 루프**: package.json 읽어 스택 감지 → 각 디렉토리에 단일 프로젝트 형식 CLAUDE.md 생성. 감지 불명확한 항목만 유저에게 한 번에 확인:
 
 ```
 감지 결과 확인해주세요:

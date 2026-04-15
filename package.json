@@ -7,14 +7,14 @@
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "typecheck": "turbo run check-types",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,mjs,cjs,json,yml,yaml,css}\"",
     "prepare": "husky"
   },
   "lint-staged": {
     "*.{js,jsx,mjs,cjs,ts,tsx}": [
       "prettier --write"
     ],
-    "*.{json,md,yml,yaml,css}": [
+    "*.{json,yml,yaml,css}": [
       "prettier --write"
     ]
   },

@@ -1,0 +1,15 @@
+# Markdown is excluded because Prettier rewrites meaningful content:
+# - `*glob*`, `*pattern*` get interpreted as italic and converted to `_..._`
+# - yaml-ish structures in code-less examples get re-flowed as nested bullets
+# - table paddings churn on every run
+# Keep markdown files as authored.
+*.md
+**/*.md
+
+# Generated / vendored
+pnpm-lock.yaml
+node_modules
+dist
+.next
+.turbo
+coverage
