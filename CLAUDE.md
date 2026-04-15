@@ -55,7 +55,7 @@ packages/
 2. **도메인 중립성** — 비즈니스 특화 코드는 admin-console 본체에 넣지 않음.
 3. **확장 지점 명확** — 메뉴/라우팅/권한/DB가 구조적으로 열려있음.
 4. **BFF 패턴** — `apps/admin/src/app/api/[...proxy]/route.ts`가 세션 → Bearer 전환.
-   `API_URL`은 서버 전용 env (NEXT*PUBLIC* 금지).
+   `API_URL`은 서버 전용 env (`NEXT_PUBLIC_` 금지).
 5. **Query Key Factory** 강제 — 문자열 리터럴 키 금지.
 6. **httpOnly 쿠키 세션** — localStorage/sessionStorage에 토큰 저장 금지.
 
