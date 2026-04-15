@@ -1,0 +1,53 @@
+{
+  "name": "admin-console",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Admin Console — 범용 어드민 콘솔 기반 (core + 비즈니스 모듈 확장형)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hansolparkdev/admin-console.git"
+  },
+  "license": "Apache-2.0",
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=22 <23"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint --continue && eslint .",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test --continue && vitest run",
+    "test:e2e": "turbo run test:e2e",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,mjs,cjs}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml,css}": [
+      "prettier --write"
+    ]
+  },
+  "devDependencies": {
+    "@admin-console/config-eslint": "workspace:*",
+    "@admin-console/testing": "workspace:*",
+    "@eslint/js": "^9.17.0",
+    "@playwright/test": "^1.59.1",
+    "@vitest/coverage-v8": "^4.1.4",
+    "eslint": "^9.17.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-unused-imports": "^4.4.1",
+    "globals": "^17.5.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
+    "prettier": "^3.8.3",
+    "turbo": "^2.9.6",
+    "typescript": "^6.0.2",
+    "typescript-eslint": "^8.58.2",
+    "vitest": "^4.1.4"
+  }
+}
