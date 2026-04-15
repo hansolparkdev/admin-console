@@ -102,22 +102,26 @@
 
 > 두 번째 패키지 = `packages/types` (admin↔api 공유 타입). 2026-04-15 확정.
 
-- [ ] (에이전트) `packages/ui/` 생성 (빈 껍데기):
-  - `package.json` (name: `@admin-console/ui`, version: `0.0.0`, license: `Apache-2.0`, type: `module`, main: `./src/index.ts`)
-  - `tsconfig.json` (strict 최소 — 후속 슬라이스에서 config-ts로 통일)
-  - `src/index.ts` (placeholder, `export {};`)
-- [ ] (에이전트) `packages/types/` 생성 (빈 껍데기):
-  - `package.json` (name: `@admin-console/types`, 동일 패턴)
-  - `tsconfig.json`
-  - `src/index.ts` (placeholder)
-- [ ] (에이전트) `pnpm-workspace.yaml`에 `packages/*` 포함 확인
-- [ ] (에이전트) 통합 검증:
-  - `pnpm install` (워크스페이스 링크 생성 확인)
-  - `apps/admin`에서 `@admin-console/types` import 가능한지 1줄 테스트 (예: `app/page.tsx`에 `import type {} from "@admin-console/types"`) 후 `pnpm build` 통과
-  - 검증 후 테스트 import 제거
-- **결정 기록**:
-  - 두 패키지의 의존 등록을 admin/api에 추가할지(`workspace:*`): ___
-  - shadcn/Tailwind/Storybook은 모두 후속 슬라이스. 이번에 ui는 정말 빈 껍데기. OK?: ___
+- [x] (에이전트) starter packages 정리: `packages/{ui, eslint-config, typescript-config}` 모두 삭제 (비목표 §9 정렬)
+- [x] (에이전트) `packages/ui/` 생성 (빈 껍데기):
+  - `package.json` (name `@admin-console/ui`, version `0.0.0`, license `Apache-2.0`, type `module`, exports `./src/index.ts`, check-types script)
+  - `tsconfig.json` (strict + noUncheckedIndexedAccess + Bundler resolution + jsx preserve)
+  - `src/index.ts` placeholder (`export {};`)
+- [x] (에이전트) `packages/types/` 생성 (빈 껍데기, ui와 동일 패턴 — jsx 옵션 제외)
+- [x] (에이전트) `pnpm-workspace.yaml` 확인 (`packages/*` 이미 포함)
+- [x] (에이전트) admin/api에 workspace 의존 등록:
+  - `apps/admin/package.json` dependencies: `@admin-console/ui`, `@admin-console/types` (`workspace:*`)
+  - `apps/api/package.json` dependencies: `@admin-console/types` (`workspace:*`)
+- [x] (에이전트) 통합 검증:
+  - `pnpm install` 성공, `apps/admin/node_modules/@admin-console/{ui,types}` symlink 생성, `apps/api/node_modules/@admin-console/types` symlink 생성
+  - admin: `import type {} from "@admin-console/types"` + `import {} from "@admin-console/ui"` 추가 → `pnpm build` 통과 → import 제거
+  - api: `import type {} from "@admin-console/types"` 추가 → `pnpm build` 통과 → import 제거
+- [x] (에이전트) `turbo.json` `build.outputs`에 `dist/**` 추가 (api dist 인식 안 되던 WARNING 해소)
+- [x] (에이전트) 최종: `pnpm exec turbo run build` → 2 tasks successful
+- **결정 기록 (2026-04-15)**:
+  - 두 패키지 의존 등록 — `workspace:*`로 명시 등록 (둘 다)
+  - shadcn/Tailwind/Storybook 후속 슬라이스. 현재 ui는 placeholder만.
+  - starter `packages/{eslint-config, typescript-config}` 삭제 — admin/api 자체 설정으로 동작. config 통합은 후속 "config 슬라이스"에서.
 
 ---
 
@@ -147,3 +151,4 @@ pnpm lint
 - `2026-04-15` — Step 1 turborepo starter 설치. 충돌로 백업→설치→복원 우회. .git은 백업 것 채택. 루트 설정 정렬(packageManager 10.33.0, engines.node ">=22 <23", license Apache-2.0). demo apps/packages는 보존(Step 2~4에서 정리).
 - `2026-04-15` — Step 2 apps/admin (Next.js 16.2.3 + Tailwind 4 + Turbopack). starter demo apps(web/docs) 삭제. create-next-app 16의 새 동작(중첩 워크스페이스 생성)을 정리(pnpm-workspace/lock/CLAUDE.md 제거, AGENTS.md 보존). package.json name → `@admin-console/admin`. dev :3000 200 검증.
 - `2026-04-15` — Step 3 apps/api (NestJS 11.0.1, jest 기본). package.json name → `@admin-console/api`, license Apache-2.0, check-types/dev script 추가. main.ts 포트 3001. build + dev :3001 "Hello World!" 검증.
+- `2026-04-15` — Step 4 packages/ui + packages/types 빈 껍데기 생성. starter packages 3개(ui/eslint-config/typescript-config) 삭제. admin/api에 workspace:* 의존 등록. import 검증 후 turbo build 2 tasks 성공.
