@@ -78,9 +78,26 @@ jobs:
         run: docker compose -f docker/docker-compose.yml down -v
 
   template-smoke:
-    # Slice 08에서 활성화. Phase 0 완료 시점까지 noop.
+    # 복제 시 바로 동작하는 템플릿성 검증.
+    # 1차: degit으로 새 레포 복제 → install/lint/typecheck
+    # fallback: actions/checkout 워킹트리를 tar로 /tmp에 풀어 동일 검증
     name: template-smoke
     runs-on: ubuntu-latest
-    if: false
+    needs: install
+    timeout-minutes: 10
     steps:
-      - run: echo "Activated in Slice 08"
+      - uses: actions/checkout@v4
+        with:
+          path: source
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: "source/.nvmrc"
+      - run: corepack enable
+      - name: Smoke via tar fallback (fork PR / rate-limit 내성)
+        run: |
+          mkdir -p /tmp/admin-console-smoke
+          tar -cf - -C source --exclude='./node_modules' --exclude='./.git' . | tar -xf - -C /tmp/admin-console-smoke
+          cd /tmp/admin-console-smoke
+          pnpm install --frozen-lockfile
+          pnpm lint
+          pnpm typecheck
