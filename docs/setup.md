@@ -46,7 +46,7 @@
   - `typecheck` 스크립트 추가 (`turbo run check-types`의 alias — demo apps가 `check-types` 명을 써서 점진 전환)
 - [x] (에이전트) `pnpm-workspace.yaml`: starter 기본값 OK (`apps/*`, `packages/*`)
 - [x] (에이전트) `turbo.json`: starter 기본값 유지 (`ui: tui`, tasks: build/dev/lint/check-types)
-- [x] (에이전트) `.gitignore`: starter 기본형으로 보강 (.next/, dist/, .turbo/, .DS_Store, .env*, !.env.example 등)
+- [x] (에이전트) `.gitignore`: starter 기본형으로 보강 (.next/, dist/, .turbo/, .DS_Store, .env\*, !.env.example 등)
 - [x] (에이전트) 검증: `corepack prepare pnpm@10.33.0 --activate` → `pnpm install` 성공 (Node 24지만 engines WARN만 뜨고 진행). `pnpm exec turbo run lint` 3 tasks 성공.
 - **결정 기록 (2026-04-15)**:
   - starter가 만든 demo apps(`apps/web`, `apps/docs`)와 demo packages(`packages/ui`, `packages/eslint-config`, `packages/typescript-config`)는 **이번 Step 1엔 그대로 둠**. Step 2(admin)/Step 3(api)에서 web/docs를 정리하고, Step 4에서 packages를 우리 ui+types로 정리.
@@ -150,22 +150,36 @@ pnpm lint
 
 ## 셋업 트랙 로드맵 (Step 5~)
 
-> **원칙**: SDD 풀 루프(`/planning → /spec → /dev`)는 **도메인 기능부터** (IAM 관리자 CRUD 등). 그 전 인프라/스캐폴딩성 작업은 모두 이 setup.md에 Step으로 누적.
+> **원칙**: SDD 풀 루프(`/planning → /spec → /dev`)는 **도메인 기능부터** (IAM 관리자 CRUD 등). 그 전 인프라/스캐폴딩성 작업은 setup.md에 Step으로 누적하되, **"지금 당장 다음 작업을 잠금해제하는가?"** 기준으로 우선순위 A/B 분리.
+>
+> 로드맵은 2026-04-15 재정렬됨 (Step 5 완료 후 실제 개발 가치 기준으로 재평가).
 
-| Step | 주제 | 비고 |
-|---|---|---|
-| 5 | 디자인 시스템 (`packages/ui` 채우기) | shadcn/ui + Tailwind preset + 기본 컴포넌트 3~5개 |
-| 6 | Storybook | 디자인 시스템 시각 검증 도구. 별도 Step (의존 그래프 분리) |
-| 7 | config 통합 패키지 | `packages/config-{ts,eslint,tailwind}` — 현재 admin/api 자체 설정 통일 |
-| 8 | 품질 도구 | Husky + lint-staged + commitlint |
-| 9 | CI | GitHub Actions (lint/typecheck/build/test) |
-| 10 | dependabot + 거버넌스 | dependabot.yml, SECURITY.md, CODEOWNERS, ISSUE/PR 템플릿 |
-| 11 | DB 인프라 | docker-compose(postgres) + Prisma 셋업 + 빈 schema |
-| 12 | BFF route handler 골격 | `apps/admin/src/app/api/[...proxy]/route.ts` + lib/api(.ts/-server.ts) + Query Client 팩토리 |
-| 13 | 인증 인프라 | Keycloak 컨테이너 + realm.json + Auth.js v5 + middleware.ts |
-| 14 | RBAC 인프라 | Prisma RBAC 스키마 + Guard/Decorator 베이스 + `<IfPermission>` 컴포넌트 |
+### 우선순위 A — SDD 진입 전 필수
 
-> **SDD 진입 시점**: Step 14까지 완료 후 IAM 관리자 CRUD부터 `/planning iam-admin` 호출.
+| Step | 주제                    | 비고                                                                                                         |
+| ---- | ----------------------- | ------------------------------------------------------------------------------------------------------------ |
+| 5    | 디자인 시스템 ✅        | shadcn v4.2 Nova, admin 내부 (완료)                                                                          |
+| 6    | **Husky + lint-staged** | 로컬 커밋 하네스. 다음 커밋부터 가치. **지금 진행**                                                          |
+| 7    | DB 인프라               | docker-compose(postgres) + Prisma 셋업 + 빈 schema. 도메인 기능의 전제                                       |
+| 8    | BFF route handler 골격  | `apps/admin/src/app/api/[...proxy]/route.ts` + lib/api(.ts/-server.ts) + Query Client 팩토리. admin↔api 연결 |
+| 9    | 인증 인프라             | Keycloak 컨테이너 + realm + Auth.js v5 + middleware.ts                                                       |
+| 10   | RBAC 베이스             | Prisma RBAC 스키마 + Guard/Decorator + `<IfPermission>`                                                      |
+
+> **SDD 진입 시점**: Step 10 완료 후 IAM 관리자 CRUD부터 `/planning iam-admin` 호출.
+
+### 우선순위 B — 필요해질 때 추가 ("지금 잠금해제 안 함")
+
+| 항목                                                | 도입 시점                                            |
+| --------------------------------------------------- | ---------------------------------------------------- |
+| Storybook                                           | 컴포넌트 10개+ 쌓이거나 디자이너 피드백 필요할 때    |
+| packages/config-\* 통합 (ts/eslint/tailwind)        | admin-mes 등 파생 앱 분기 시점                       |
+| commitlint                                          | 팀 합류해 메시지 일관성 필요할 때                    |
+| GitHub Actions CI                                   | "화면 나오면" 그 시점에 AI로 일괄 추가 (사용자 결정) |
+| dependabot                                          | 공개 repo로 실제 사용 시작 시                        |
+| 거버넌스 (SECURITY.md, CODEOWNERS, ISSUE/PR 템플릿) | PR 프로세스 시작 시                                  |
+| packages/api-client (OpenAPI)                       | 타입 공유 부담 커질 때                               |
+
+> 직전 실패의 교훈: 위 B 항목들을 "언젠가 필요하다"고 미리 깔면 "동작 안 하는 인프라 비대"가 된다. 아프기 시작할 때 추가가 원칙.
 
 각 Step은 별도 섹션으로 아래 추가하며 진행. 분담 원칙(사용자 CLI / 에이전트 정리)은 동일.
 
@@ -174,11 +188,13 @@ pnpm lint
 ## Step 5 — 디자인 시스템 (`apps/admin` 내부)
 
 ### 목표
+
 shadcn/ui (Radix + Tailwind 4 + CVA) 기반 디자인 시스템 부트스트랩. admin 내부에서 먼저 성장시킴.
 
 ### 방향 전환 (2026-04-15)
 
 최초 계획은 `packages/ui`에 직접 shadcn init이었으나, **shadcn 최신 CLI(v4.2)는 Next.js 앱 디렉토리 기준 동작이 기본**이며 Nova preset 선택 후 init + Button 설치까지 한 번에 완료해버린다. packages/ui로 억지로 이전하면:
+
 - `components.json` aliases를 상대경로로 교정해야 함
 - packages/ui의 tsconfig에 paths alias 설정 필요
 - shadcn `add` 명령을 쓸 때마다 경로 문제 재발 가능
@@ -186,6 +202,7 @@ shadcn/ui (Radix + Tailwind 4 + CVA) 기반 디자인 시스템 부트스트랩.
 → **admin 내부에 두는 방식(B)으로 전환**. `packages/ui`는 **"admin+api가 공유할 진짜 공용 UI만 나중에 승격"** 용으로 재정의(현재 비어있음). 파생 프로젝트(admin-mes 등) 분기 시점에 자연스럽게 packages/ui로 승격 결정.
 
 ### 결정 사항 (확정 — 2026-04-15)
+
 1. **shadcn 도입 위치**: `apps/admin/` 내부 — `components.json`/`src/components/ui/`/`src/lib/utils.ts`가 admin에 속함
 2. **Style preset**: Nova (Lucide icons + Geist font, Radix 기반) — shadcn CLI v4.2 선택
 3. **첫 컴포넌트**: Button + Card + Input (3개 확정)
@@ -193,10 +210,11 @@ shadcn/ui (Radix + Tailwind 4 + CVA) 기반 디자인 시스템 부트스트랩.
 5. **다크모드**: `.dark` class 기반 (CSS variables로 자동). 토글 UI는 후속 슬라이스
 6. **`cn` util**: `apps/admin/src/lib/utils.ts` (clsx + tailwind-merge, shadcn 생성)
 7. **의존성**: `radix-ui`(통합 패키지), `lucide-react`, `class-variance-authority`, `clsx`, `tailwind-merge`, `tw-animate-css`, `shadcn` (admin의 dependencies로)
-8. **`packages/ui` 현 상태**: placeholder 유지(workspace:* 등록은 그대로). 진짜 공용 승격은 후속
+8. **`packages/ui` 현 상태**: placeholder 유지(workspace:\* 등록은 그대로). 진짜 공용 승격은 후속
 9. **`CLAUDE.md` 갱신**: 워크스페이스 구조(목표)의 `packages/ui` 설명에 "현재는 admin 내부, 공유 대상만 승격" 주석 추가
 
 ### 체크리스트
+
 - [x] (사용자) `cd apps/admin && pnpm dlx shadcn@latest init` 실행
   - 답: component library = Radix / preset = Nova. 이후 자동 완료(Button + utils + globals.css + deps까지 설치됨)
 - [x] (사용자) `pnpm dlx shadcn@latest add card input` (Card, Input 추가)
@@ -208,9 +226,39 @@ shadcn/ui (Radix + Tailwind 4 + CVA) 기반 디자인 시스템 부트스트랩.
 - [ ] (에이전트) 커밋
 
 ### 결정 기록
+
 - 2026-04-15: 방향 B 전환. packages/ui는 placeholder 유지, shadcn은 admin에. 이유는 §방향 전환 참조.
 - 2026-04-15: Tailwind 4 CSS-only config — `tailwind.config.ts` 파일 만들지 않음. Nova preset이 globals.css에 모든 theme/variants 삽입.
 - 2026-04-15: `radix-ui` 통합 패키지(^1.4.3)로 설치됨 — 개별 `@radix-ui/react-*` 대신. shadcn v4.2 convention.
+
+---
+
+## Step 6 — Husky + lint-staged (커밋 하네스)
+
+### 목표
+
+매 커밋 전 staged 파일의 포맷을 자동 정리. 오염된 커밋 방지. 로컬 하네스 역할.
+
+### 결정 사항 (확정 — 2026-04-15)
+
+1. **범위**: Husky + lint-staged 두 개. commitlint는 우선순위 B로 보류 (필요 시 별도 Step).
+2. **lint-staged 대상**: prettier만. ESLint는 admin/api/ui/types 각자 config가 달라 루트 일관 처리 어려움. 후속 config 통합 슬라이스에서 재검토.
+3. **ESLint 누락의 리스크 수용**: 커밋 시 린트 체크는 안 되지만, `pnpm lint`가 turbo로 CI/로컬에서 돌 수 있음. 필요하면 각 앱이 자체 pre-commit 추가 가능.
+4. **파일 경로**: `.husky/pre-commit`만 (commit-msg는 없음).
+
+### 체크리스트
+
+- [x] (에이전트) `pnpm add -wD husky lint-staged`
+- [x] (에이전트) `package.json`에 `prepare: husky` + `lint-staged` 설정 추가
+- [x] (에이전트) `pnpm exec husky init` → `.husky/pre-commit` 생성
+- [x] (에이전트) `.husky/pre-commit` 내용을 `pnpm exec lint-staged`로 교체 (기본값 `pnpm test` 제거)
+- [x] (에이전트) 검증: 포맷 깨진 .ts 파일 stage → 커밋 시 prettier가 자동 수정 확인 → 테스트 파일/커밋 되돌림
+- [ ] (에이전트) 커밋
+
+### 결정 기록
+
+- 2026-04-15: ESLint를 lint-staged에서 제외. admin은 `eslint-config-next`, api는 `typescript-eslint+prettier`, ui/types는 ESLint 없음 — 루트에서 파일 하나를 어떤 config로 돌릴지 결정 비용이 가치보다 큼.
+- 2026-04-15: lint-staged 대상 확장자: `js/jsx/mjs/cjs/ts/tsx/json/md/yml/yaml/css`. prettier가 모두 처리.
 
 ---
 
@@ -222,6 +270,8 @@ shadcn/ui (Radix + Tailwind 4 + CVA) 기반 디자인 시스템 부트스트랩.
 - `2026-04-15` — Step 1 turborepo starter 설치. 충돌로 백업→설치→복원 우회. .git은 백업 것 채택. 루트 설정 정렬(packageManager 10.33.0, engines.node ">=22 <23", license Apache-2.0). demo apps/packages는 보존(Step 2~4에서 정리).
 - `2026-04-15` — Step 2 apps/admin (Next.js 16.2.3 + Tailwind 4 + Turbopack). starter demo apps(web/docs) 삭제. create-next-app 16의 새 동작(중첩 워크스페이스 생성)을 정리(pnpm-workspace/lock/CLAUDE.md 제거, AGENTS.md 보존). package.json name → `@admin-console/admin`. dev :3000 200 검증.
 - `2026-04-15` — Step 3 apps/api (NestJS 11.0.1, jest 기본). package.json name → `@admin-console/api`, license Apache-2.0, check-types/dev script 추가. main.ts 포트 3001. build + dev :3001 "Hello World!" 검증.
-- `2026-04-15` — Step 4 packages/ui + packages/types 빈 껍데기 생성. starter packages 3개(ui/eslint-config/typescript-config) 삭제. admin/api에 workspace:* 의존 등록. import 검증 후 turbo build 2 tasks 성공.
+- `2026-04-15` — Step 4 packages/ui + packages/types 빈 껍데기 생성. starter packages 3개(ui/eslint-config/typescript-config) 삭제. admin/api에 workspace:\* 의존 등록. import 검증 후 turbo build 2 tasks 성공.
 - `2026-04-15` — 셋업 트랙 범위 재확정 합의. SDD 풀 루프는 도메인 기능부터(IAM CRUD 등). 그 전 디자인 시스템·Storybook·config·BFF·DB·인증 등 인프라성 작업은 모두 setup.md에 Step 5~14로 누적. 메모리(`feedback_sdd_vs_plan.md`) 갱신.
 - `2026-04-15` — Step 5 디자인 시스템. shadcn v4.2 + Nova preset + Radix 통합 패키지. admin 내부에 Button/Card/Input 설치. Tailwind 4 CSS-only config. packages/ui는 placeholder 유지(방향 B 전환, 이유는 Step 5 §방향 전환 참조). build 통과 검증.
+- `2026-04-15` — 로드맵 재정렬. "지금 당장 다음 작업을 잠금해제하는가?" 기준. Storybook/config 통합/CI/dependabot/거버넌스/commitlint 모두 우선순위 B로 이동. 우선순위 A: Husky → DB → BFF → 인증 → RBAC → (SDD 진입).
+- `2026-04-15` — Step 6 Husky + lint-staged. 커밋 하네스. `prepare: husky`, `.husky/pre-commit: pnpm exec lint-staged`, `package.json lint-staged: prettier --write`. ESLint는 각 앱 config 차이로 lint-staged에서 제외 (후속 config 통합 슬라이스에서 재검토). hook 동작 검증 완료.

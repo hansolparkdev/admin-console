@@ -6,11 +6,13 @@
 ## 시작하기
 
 ### 요구사항
+
 - **Node**: 22 LTS (`.nvmrc` 기준)
 - **pnpm**: Corepack 경유 자동 활성 (`packageManager` 필드 고정)
 - **OS**: macOS 14+, Ubuntu 22.04+, Windows 11 WSL2 (네이티브 Windows 비공식)
 
 ### 설치
+
 ```bash
 # Node 버전 맞추기 (nvm 기준)
 nvm install 22 && nvm use
@@ -23,6 +25,7 @@ pnpm install
 ```
 
 ### 검증
+
 ```bash
 pnpm lint        # exit 0
 ```
@@ -36,8 +39,6 @@ pnpm lint        # exit 0
 ## 문서
 
 - [`CLAUDE.md`](CLAUDE.md) — 프로젝트 개요·스택·폴더 규칙
-- [`docs/plans/phase-0-foundation/plan.md`](docs/plans/phase-0-foundation/plan.md) — Phase 0 기획
-- [`docs/legacy/NEW-PROJECT-SPEC.md`](docs/legacy/NEW-PROJECT-SPEC.md) — 전체 설계 명세 (레거시 코드네임 `axis` = `admin-console`)
 - [`docs/DESIGN.md`](docs/DESIGN.md) — 디자인 토큰
 - [`docs/harness.md`](docs/harness.md) — Claude Code 훅 설계
 
