@@ -79,17 +79,24 @@
 
 ## Step 3 — apps/api (NestJS 11)
 
-- [ ] (사용자) `cd apps && pnpm dlx @nestjs/cli@latest new api --package-manager pnpm --strict --skip-git`
-- [ ] (에이전트) `apps/api/package.json`:
-  - `name` → `@admin-console/api`
-  - `version` → `0.0.0`
-- [ ] (에이전트) `apps/api/src/main.ts` — `app.listen(...)`을 **3001**로 (admin과 포트 충돌 회피)
-- [ ] (에이전트) 검증:
-  - `pnpm install`
-  - `pnpm --filter @admin-console/api start:dev` → `curl -sf -o /dev/null -w "%{http_code}\n" http://localhost:3001/` 200 ("Hello World!")
-  - `pnpm --filter @admin-console/api build` 성공
-- **결정 기록**:
-  - Jest는 NestJS CLI 기본 산출물로 잔존 허용 (Vitest 통일은 후속 슬라이스). OK?: ___
+- [x] (사용자) `pnpm dlx @nestjs/cli@latest new apps/api --package-manager pnpm --strict --skip-git --skip-install`
+  - 결과: NestJS 11.0.1, src/{app.controller,app.module,app.service,main}.ts, test/, jest 기본 셋업
+- [x] (에이전트) `apps/api/package.json`:
+  - `name`: `api` → `@admin-console/api`
+  - `version`: `0.0.1` → `0.0.0`
+  - `license`: `UNLICENSED` → `Apache-2.0`
+  - `description`/`author` 빈 필드 제거
+  - `check-types` 스크립트 추가 (`tsc --noEmit -p tsconfig.json`)
+  - `dev` 스크립트 추가 (`nest start --watch` alias for turbo)
+- [x] (에이전트) `apps/api/src/main.ts` — `app.listen(process.env.PORT ?? 3000)` → `?? 3001`
+- [x] (에이전트) 검증:
+  - `pnpm install` 성공 (`@nestjs/core` postinstall script는 pnpm 10 default로 차단됨, 동작에 영향 없음)
+  - `pnpm --filter @admin-console/api build` 성공 (`apps/api/dist/` 생성)
+  - `pnpm --filter @admin-console/api start:dev` → `curl http://localhost:3001/` HTTP 200 "Hello World!"
+- **결정 기록 (2026-04-15)**:
+  - Jest 잔존 허용 — NestJS CLI 기본 산출물. Vitest 통일은 후속 슬라이스.
+  - 포트 3001 확정 (admin과 충돌 회피). PORT env로 override 가능.
+  - `@nestjs/core` build script 차단 — 현재 동작 정상이라 approve 안 함. 필요해지면 후속 슬라이스에서 `pnpm approve-builds`.
 
 ## Step 4 — packages/ui + packages/types
 
@@ -139,3 +146,4 @@ pnpm lint
 - `2026-04-15` — 문서 생성 (docs/setup.md). plan 승인됨.
 - `2026-04-15` — Step 1 turborepo starter 설치. 충돌로 백업→설치→복원 우회. .git은 백업 것 채택. 루트 설정 정렬(packageManager 10.33.0, engines.node ">=22 <23", license Apache-2.0). demo apps/packages는 보존(Step 2~4에서 정리).
 - `2026-04-15` — Step 2 apps/admin (Next.js 16.2.3 + Tailwind 4 + Turbopack). starter demo apps(web/docs) 삭제. create-next-app 16의 새 동작(중첩 워크스페이스 생성)을 정리(pnpm-workspace/lock/CLAUDE.md 제거, AGENTS.md 보존). package.json name → `@admin-console/admin`. dev :3000 200 검증.
+- `2026-04-15` — Step 3 apps/api (NestJS 11.0.1, jest 기본). package.json name → `@admin-console/api`, license Apache-2.0, check-types/dev script 추가. main.ts 포트 3001. build + dev :3001 "Hello World!" 검증.
