@@ -98,15 +98,17 @@ packages/
 
 ## 전체 명령
 
-| 명령             | 의미                                       |
-| ---------------- | ------------------------------------------ |
-| `pnpm install`   | 의존 설치                                  |
-| `pnpm dev`       | 모든 앱 개발 서버 (turbo)                  |
-| `pnpm build`     | 모든 앱 빌드                               |
-| `pnpm lint`      | 각 앱 ESLint (turbo run lint)              |
-| `pnpm typecheck` | 각 앱 tsc --noEmit (turbo run check-types) |
-| `pnpm format`    | prettier --write                           |
-| `pnpm audit`     | 의존 보안 스캔                             |
+| 명령             | 의미                                                |
+| ---------------- | --------------------------------------------------- |
+| `pnpm install`   | 의존 설치                                           |
+| `pnpm dev`       | 모든 앱 개발 서버 (turbo)                           |
+| `pnpm build`     | 모든 앱 빌드                                        |
+| `pnpm lint`      | 각 앱 ESLint (turbo run lint)                       |
+| `pnpm typecheck` | 각 앱 tsc --noEmit (turbo run check-types)          |
+| `pnpm test`      | 단위 테스트 (Vitest 등, 각 앱 test 스크립트)        |
+| `pnpm e2e`       | E2E 테스트 (Playwright, 기본 헤드리스 / `--headed`) |
+| `pnpm format`    | prettier --write                                    |
+| `pnpm audit`     | 의존 보안 스캔                                      |
 
 DB/인프라 명령(`docker compose up -d postgres ...` 등)은 DB 인프라 셋업 후 추가.
 
