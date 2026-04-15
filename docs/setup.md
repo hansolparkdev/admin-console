@@ -1,6 +1,11 @@
-# 초기 세팅
+# 셋업 트랙
 
-> 모노레포(Turborepo + pnpm) + Next.js(admin) + NestJS(api) + packages/ui + packages/types까지의 최소 동작 상태를 만든다.
+> SDD 풀 루프(`/planning → /spec → /dev`) 진입 전, **도메인 기능 이전의 모든 인프라/스캐폴딩 작업**을 이 단일 문서에 Step으로 누적한다.
+>
+> - **부트스트랩 (Step 1~4)** ✅: 모노레포(Turborepo+pnpm) + Next.js(admin) + NestJS(api) + packages/ui+types
+> - **셋업 (Step 5~14)**: 디자인 시스템 → Storybook → config 통합 → 품질 도구 → CI → 거버넌스 → DB 인프라 → BFF 골격 → 인증 → RBAC 인프라
+> - **이후**: 도메인 기능(IAM CRUD 등)은 SDD 풀 루프로 전환
+>
 > 사용자와 에이전트가 분담해 한 단계씩 체크하며 진행한다.
 
 작성 시작: 2026-04-15
@@ -125,7 +130,7 @@
 
 ---
 
-## 최종 검증 (Step 1~4 완료 후)
+## 부트스트랩(Step 1~4) 통합 검증
 
 ```bash
 pnpm install
@@ -135,11 +140,64 @@ curl -sf -o /dev/null -w "admin=%{http_code}\n" http://localhost:3000/
 curl -sf -o /dev/null -w "api=%{http_code}\n" http://localhost:3001/
 # Ctrl+C
 pnpm build
-pnpm typecheck    # 각 앱이 typecheck 스크립트를 가져야 함 — 없으면 추가
+pnpm typecheck
 pnpm lint
 ```
 
-모두 성공 + 두 curl이 200이면 초기 세팅 완료.
+모두 성공 + 두 curl이 200이면 부트스트랩 완료. ✅ 2026-04-15 통과.
+
+---
+
+## 셋업 트랙 로드맵 (Step 5~)
+
+> **원칙**: SDD 풀 루프(`/planning → /spec → /dev`)는 **도메인 기능부터** (IAM 관리자 CRUD 등). 그 전 인프라/스캐폴딩성 작업은 모두 이 setup.md에 Step으로 누적.
+
+| Step | 주제 | 비고 |
+|---|---|---|
+| 5 | 디자인 시스템 (`packages/ui` 채우기) | shadcn/ui + Tailwind preset + 기본 컴포넌트 3~5개 |
+| 6 | Storybook | 디자인 시스템 시각 검증 도구. 별도 Step (의존 그래프 분리) |
+| 7 | config 통합 패키지 | `packages/config-{ts,eslint,tailwind}` — 현재 admin/api 자체 설정 통일 |
+| 8 | 품질 도구 | Husky + lint-staged + commitlint |
+| 9 | CI | GitHub Actions (lint/typecheck/build/test) |
+| 10 | dependabot + 거버넌스 | dependabot.yml, SECURITY.md, CODEOWNERS, ISSUE/PR 템플릿 |
+| 11 | DB 인프라 | docker-compose(postgres) + Prisma 셋업 + 빈 schema |
+| 12 | BFF route handler 골격 | `apps/admin/src/app/api/[...proxy]/route.ts` + lib/api(.ts/-server.ts) + Query Client 팩토리 |
+| 13 | 인증 인프라 | Keycloak 컨테이너 + realm.json + Auth.js v5 + middleware.ts |
+| 14 | RBAC 인프라 | Prisma RBAC 스키마 + Guard/Decorator 베이스 + `<IfPermission>` 컴포넌트 |
+
+> **SDD 진입 시점**: Step 14까지 완료 후 IAM 관리자 CRUD부터 `/planning iam-admin` 호출.
+
+각 Step은 별도 섹션으로 아래 추가하며 진행. 분담 원칙(사용자 CLI / 에이전트 정리)은 동일.
+
+---
+
+## Step 5 — 디자인 시스템 (`packages/ui` 채우기)
+
+### 목표
+shadcn/ui + Tailwind 4 + CVA 기반 디자인 시스템 부트스트랩. 첫 컴포넌트로 admin/api 도메인 화면이 의존할 베이스 마련.
+
+### 결정 필요 사항 (작업 시작 전)
+- shadcn/ui CLI 도입 방식: 표준 `pnpm dlx shadcn@latest init` (apps/admin 기준) vs `packages/ui`에 직접 설치
+- 첫 컴포넌트 범위: Button + Card + Input 3개 (최소) vs Button + Input + Label + Card + Dialog 5개 (다이얼로그까지)
+- Tailwind preset 위치: `packages/ui/tailwind.preset.js`로 export vs Step 7에서 `packages/config-tailwind` 분리
+- ui 패키지의 export 방식: barrel(`./src/index.ts`) vs 컴포넌트별 path(`@admin-console/ui/button`)
+- 다크모드: 이번 Step에 포함 vs Storybook(Step 6)와 함께
+- shadcn/ui가 의존하는 utils(`cn`, clsx, tailwind-merge): `packages/ui/src/lib/utils.ts`로
+
+### 분담 (예정)
+- 사용자: `pnpm dlx shadcn@latest init` 등 대화형 CLI
+- 에이전트: 정리·정합성 맞추기·검증·커밋
+
+### 체크리스트 (작성 예정)
+- [ ] 결정 사항 확정
+- [ ] (사용자/에이전트) shadcn 초기화
+- [ ] (에이전트) Tailwind preset/CSS variables 셋업
+- [ ] (에이전트) `cn` util + 첫 컴포넌트 N개 생성
+- [ ] (에이전트) admin에서 import해서 build/lint/typecheck/dev :3000 통과
+- [ ] (에이전트) 커밋
+
+### 결정 기록
+(작업 진행 중 갱신)
 
 ---
 
@@ -152,3 +210,4 @@ pnpm lint
 - `2026-04-15` — Step 2 apps/admin (Next.js 16.2.3 + Tailwind 4 + Turbopack). starter demo apps(web/docs) 삭제. create-next-app 16의 새 동작(중첩 워크스페이스 생성)을 정리(pnpm-workspace/lock/CLAUDE.md 제거, AGENTS.md 보존). package.json name → `@admin-console/admin`. dev :3000 200 검증.
 - `2026-04-15` — Step 3 apps/api (NestJS 11.0.1, jest 기본). package.json name → `@admin-console/api`, license Apache-2.0, check-types/dev script 추가. main.ts 포트 3001. build + dev :3001 "Hello World!" 검증.
 - `2026-04-15` — Step 4 packages/ui + packages/types 빈 껍데기 생성. starter packages 3개(ui/eslint-config/typescript-config) 삭제. admin/api에 workspace:* 의존 등록. import 검증 후 turbo build 2 tasks 성공.
+- `2026-04-15` — 셋업 트랙 범위 재확정 합의. SDD 풀 루프는 도메인 기능부터(IAM CRUD 등). 그 전 디자인 시스템·Storybook·config·BFF·DB·인증 등 인프라성 작업은 모두 setup.md에 Step 5~14로 누적. 메모리(`feedback_sdd_vs_plan.md`) 갱신.
