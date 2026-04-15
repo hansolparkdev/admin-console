@@ -176,28 +176,43 @@ pnpm lint
 ### 목표
 shadcn/ui + Tailwind 4 + CVA 기반 디자인 시스템 부트스트랩. 첫 컴포넌트로 admin/api 도메인 화면이 의존할 베이스 마련.
 
-### 결정 필요 사항 (작업 시작 전)
-- shadcn/ui CLI 도입 방식: 표준 `pnpm dlx shadcn@latest init` (apps/admin 기준) vs `packages/ui`에 직접 설치
-- 첫 컴포넌트 범위: Button + Card + Input 3개 (최소) vs Button + Input + Label + Card + Dialog 5개 (다이얼로그까지)
-- Tailwind preset 위치: `packages/ui/tailwind.preset.js`로 export vs Step 7에서 `packages/config-tailwind` 분리
-- ui 패키지의 export 방식: barrel(`./src/index.ts`) vs 컴포넌트별 path(`@admin-console/ui/button`)
-- 다크모드: 이번 Step에 포함 vs Storybook(Step 6)와 함께
-- shadcn/ui가 의존하는 utils(`cn`, clsx, tailwind-merge): `packages/ui/src/lib/utils.ts`로
+### 결정 사항 (확정 — 2026-04-15)
+1. **shadcn 도입 위치**: `packages/ui`에 직접 (모노레포 표준 패턴)
+2. **첫 컴포넌트**: **Button + Card + Input** 3개 (동작·패턴 확립이 목적, 추가는 후속 Step)
+3. **Tailwind preset 위치**: `packages/ui/tailwind.preset.js`로 지금 export (admin이 바로 사용)
+4. **export 방식**: 컴포넌트별 path (`@admin-console/ui/button`) — tree-shaking + shadcn convention 일치
+5. **다크모드**: 이번 Step 포함 (CSS variables 셋업 시 자연 통합)
+6. **`cn` util**: `packages/ui/src/lib/utils.ts` (clsx + tailwind-merge)
+7. **Tailwind 4**: admin에 이미 설치된 `tailwindcss@^4` + `@tailwindcss/postcss` 그대로 사용
 
-### 분담 (예정)
-- 사용자: `pnpm dlx shadcn@latest init` 등 대화형 CLI
-- 에이전트: 정리·정합성 맞추기·검증·커밋
+### 분담
+- 사용자: `pnpm dlx shadcn@latest init` 대화형 CLI (필요 시 의존성 설치도)
+- 에이전트: 정리·preset 분리·`packages/ui` exports/path 셋업·admin 통합·검증·커밋
 
-### 체크리스트 (작성 예정)
-- [ ] 결정 사항 확정
-- [ ] (사용자/에이전트) shadcn 초기화
-- [ ] (에이전트) Tailwind preset/CSS variables 셋업
-- [ ] (에이전트) `cn` util + 첫 컴포넌트 N개 생성
-- [ ] (에이전트) admin에서 import해서 build/lint/typecheck/dev :3000 통과
+### 체크리스트
+- [ ] (사용자) `cd packages/ui && pnpm dlx shadcn@latest init` 실행 (대화형)
+  - 답할 프롬프트 (예상): style(`new-york` 권장), base color(`zinc`), CSS variables(Yes), components path, utils path, RSC(Yes/No 미정 — packages이라 상관 없음)
+- [ ] (에이전트) shadcn이 만든 잡파일 정리:
+  - `packages/ui/components.json` 유지 (shadcn add 시 필요)
+  - `packages/ui/tsconfig.json` 손상되면 우리 것으로 복원
+  - `packages/ui/package.json` 의존 정리(class-variance-authority, clsx, tailwind-merge, tailwindcss-animate, lucide-react 정도)
+- [ ] (사용자) `pnpm dlx shadcn@latest add button card input` (3개)
+- [ ] (에이전트) `packages/ui/src/lib/utils.ts` (cn) 확인
+- [ ] (에이전트) Tailwind preset 분리: `packages/ui/tailwind.preset.js` (color tokens + animations + dark mode + content scan paths)
+- [ ] (에이전트) `packages/ui/package.json` exports 컴포넌트별 path 등록 (`./button`, `./card`, `./input`, `./lib/utils`, `./tailwind.preset`)
+- [ ] (에이전트) `apps/admin` 통합:
+  - `apps/admin/tailwind.config.ts` 또는 `app/globals.css`에 ui preset 참조 추가
+  - `app/page.tsx`에 Button 임포트해 동작 확인 (검증 후 제거 또는 유지)
+  - 다크모드 토글: `<html className="dark">` 또는 `next-themes` (이번 Step에 포함하되 next-themes 도입 여부는 작업 중 결정)
+- [ ] (에이전트) 검증:
+  - `pnpm install` 워크스페이스 링크 OK
+  - `pnpm --filter @admin-console/admin build` 통과
+  - `pnpm --filter @admin-console/admin dev` :3000 200 + Button 시각 확인
+  - `pnpm exec turbo run check-types` 통과
 - [ ] (에이전트) 커밋
 
-### 결정 기록
-(작업 진행 중 갱신)
+### 결정 기록 (작업 진행 중 갱신)
+- ___
 
 ---
 
