@@ -1,0 +1,103 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  install:
+    name: install
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+      - name: Enable corepack
+        run: corepack enable
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    needs: install
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+
+  typecheck:
+    name: typecheck
+    runs-on: ubuntu-latest
+    needs: install
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    needs: install
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test
+
+  infra:
+    name: infra
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - name: Docker compose up
+        run: docker compose -f docker/docker-compose.yml up -d --wait
+      - name: Verify healthchecks
+        run: docker compose -f docker/docker-compose.yml ps
+      - name: Docker compose down
+        if: always()
+        run: docker compose -f docker/docker-compose.yml down -v
+
+  template-smoke:
+    # 복제 시 바로 동작하는 템플릿성 검증.
+    # 1차: degit으로 새 레포 복제 → install/lint/typecheck
+    # fallback: actions/checkout 워킹트리를 tar로 /tmp에 풀어 동일 검증
+    name: template-smoke
+    runs-on: ubuntu-latest
+    needs: install
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          path: source
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: "source/.nvmrc"
+      - run: corepack enable
+      - name: Smoke via tar fallback (fork PR / rate-limit 내성)
+        run: |
+          mkdir -p /tmp/admin-console-smoke
+          tar -cf - -C source --exclude='./node_modules' --exclude='./.git' . | tar -xf - -C /tmp/admin-console-smoke
+          cd /tmp/admin-console-smoke
+          pnpm install --frozen-lockfile
+          pnpm lint
+          pnpm typecheck

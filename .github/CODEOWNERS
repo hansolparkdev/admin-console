@@ -1,0 +1,14 @@
+# 전역 기본 오너
+* @hansolparkdev
+
+# 공용 레일
+/packages/config-ts/           @hansolparkdev
+/packages/config-eslint/       @hansolparkdev
+/packages/config-tailwind/     @hansolparkdev
+/packages/config-env/          @hansolparkdev
+/packages/testing/             @hansolparkdev
+
+# 인프라·CI·거버넌스
+/.github/                      @hansolparkdev
+/docker/                       @hansolparkdev
+/.husky/                       @hansolparkdev

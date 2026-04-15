@@ -1,0 +1,18 @@
+{
+  "name": "@admin-console/config-eslint",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "Apache-2.0",
+  "description": "공유 ESLint 프리셋 (base flat config)",
+  "peerDependencies": {
+    "eslint": "^9.0.0"
+  },
+  "main": "./index.js",
+  "exports": {
+    ".": "./index.js"
+  },
+  "files": [
+    "index.js"
+  ]
+}
