@@ -130,6 +130,20 @@ packages/
 1. **인프라/스캐폴딩** → `docs/setup.md`에 Step으로 누적 (plan 문서 없음).
 2. **제품 기능 (테스트 가능한 사용자 시나리오 있음)** → `/planning <feature>` → `/spec` → `/dev`.
 3. 판단 기준: "이 작업의 산출물에 E2E 시나리오가 있는가?" 있으면 SDD, 없으면 setup.md.
+4. **새 패턴·라이브러리·보안 결정은 `docs/concepts/`에 개념 문서도 동시에 작성**. "왜 이렇게 만들었는지"를 설명할 수 있어야 한다. 구현만 하고 개념 생략 금지.
+
+## 개념 문서 (`docs/concepts/`)
+
+현재 작성된 개념:
+
+- [BFF 패턴](docs/concepts/bff.md)
+- [httpOnly 세션 쿠키](docs/concepts/httponly-session.md)
+- [Query Key Factory](docs/concepts/query-key-factory.md)
+- [QueryClient SSR 구조](docs/concepts/query-client-ssr.md)
+- [Prisma 7 Driver Adapter](docs/concepts/prisma-driver-adapter.md)
+- [shadcn 아키텍처](docs/concepts/shadcn-architecture.md)
+
+목록은 `docs/concepts/README.md`에 인덱스로 관리.
 
 ## 코드 컨벤션
 
