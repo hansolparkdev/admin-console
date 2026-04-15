@@ -307,6 +307,44 @@ shadcn/ui (Radix + Tailwind 4 + CVA) 기반 디자인 시스템 부트스트랩.
 
 ---
 
+## Step 8 — BFF route handler 골격
+
+### 목표
+admin의 모든 `/api/*` 요청을 내부 API(:3001)로 프록시. `API_URL`은 서버 전용(env) — CLAUDE.md 금지 패턴(`NEXT_PUBLIC_` URL 노출) 차단. TanStack Query 레일도 함께 깔아 이후 도메인 슬라이스가 바로 `useQuery` 사용 가능.
+
+### 결정 사항 (확정 — 2026-04-15)
+1. **프록시 방식**: Next.js App Router의 catch-all route `app/api/[...proxy]/route.ts` 한 파일로 모든 method 처리 (GET/POST/PUT/PATCH/DELETE/OPTIONS/HEAD)
+2. **인증 연동은 Step 9로**: 지금은 pass-through. Auth.js 세션 → Bearer 변환 로직은 Google OIDC 붙일 때 추가
+3. **세 가지 fetcher 분리** (CLAUDE.md 핵심 폴더 규칙):
+   - `lib/api.ts`: 클라이언트 (baseURL `/api`, `credentials: "include"`)
+   - `lib/api-server.ts`: 서버 (직접 API_URL 호출, `server-only` 마커)
+   - `lib/get-query-client.ts`: QueryClient 팩토리 (서버 요청마다 new / 브라우저 singleton)
+4. **Query Key Factory는 도메인 슬라이스에서** 각각. 이번 Step은 infra만
+5. **devtools**: dev 모드에서만 렌더 (`process.env.NODE_ENV === "development"`)
+
+### 체크리스트
+- [x] (에이전트) `pnpm add --filter @admin-console/admin @tanstack/react-query server-only`
+- [x] (에이전트) `pnpm add --filter @admin-console/admin -D @tanstack/react-query-devtools`
+- [x] (에이전트) `apps/admin/src/app/api/[...proxy]/route.ts` — catch-all 프록시. host/connection/content-length 헤더 정리, upstream body 스트리밍
+- [x] (에이전트) `apps/admin/src/lib/api.ts` — 클라이언트 fetcher + `ApiError` 클래스
+- [x] (에이전트) `apps/admin/src/lib/api-server.ts` — 서버 fetcher (server-only) + `ApiServerError`
+- [x] (에이전트) `apps/admin/src/lib/get-query-client.ts` — `isServer` 분기로 싱글톤/새 인스턴스
+- [x] (에이전트) `apps/admin/src/components/providers/query-provider.tsx` — client component, devtools 포함
+- [x] (에이전트) `apps/admin/src/app/layout.tsx` — `<QueryProvider>` 연결 + metadata admin-console으로 정정
+- [x] (에이전트) 검증:
+  - `pnpm --filter @admin-console/admin build` 통과 (`/api/[...proxy]`가 Dynamic route로 인식)
+  - lint + check-types clean
+  - api + admin 동시 기동 → `curl http://localhost:3000/api/health` HTTP 200 `{"status":"ok","db":"up"}` (프록시 검증)
+  - `curl http://localhost:3001/health` 직접 호출도 동일 응답
+
+### 결정 기록
+- 2026-04-15: catch-all segment 이름은 `[...proxy]` — CLAUDE.md 핵심 폴더 규칙에 `src/app/api/[...proxy]/route.ts`로 명시됨.
+- 2026-04-15: 프록시가 Set-Cookie를 재작성하지 않음. Auth.js(Step 9)가 admin-console 도메인 쿠키를 독점 관리하고, upstream API 쿠키는 브라우저가 서로 다른 origin으로 인지하지 않도록 투명 전달.
+- 2026-04-15: `content-length` / `content-encoding` 응답 헤더 제거 — Next.js가 재인코딩해 불일치가 생기면 브라우저 파싱 실패.
+- 2026-04-15: body 전달은 `arrayBuffer()` — 텍스트/JSON/바이너리 다 처리. `req.text()`는 바이너리 깨짐.
+
+---
+
 ## 진행 로그
 
 작업하면서 결정·이슈를 시간순으로 추가.
@@ -324,3 +362,5 @@ shadcn/ui (Radix + Tailwind 4 + CVA) 기반 디자인 시스템 부트스트랩.
 - `2026-04-15` — CLAUDE.md 축소. 규약만 담기로 합의 (진행 상황·참고 문서·이전 레퍼런스 제거). 금지 패턴 12개 섹션 신설. `/dev` 스킬에서 자동 커밋 Step 제거(아카이브까지만).
 - `2026-04-15` — E2E 명령 기본 `--headed`로 전환 (시각 확인 우선, headless는 CI). api/main.ts `bootstrap()` floating promise 수정.
 - `2026-04-15` — Step 7 DB 인프라. PostgreSQL 16 + Keycloak 26 컨테이너, Prisma 7 driver adapter(adapter-pg), 첫 migration(HealthCheck), `/health` 엔드포인트(DB ping) 검증 완료. Redis는 SSE 슬라이스까지 보류.
+- `2026-04-15` — 인증 방향 전환: 핵심은 Google OIDC (Auth.js v5), Keycloak은 on-prem 대체로 docker-compose 주석 보존. Step 10 RBAC 별도 항목 삭제 — 도메인 슬라이스에서 Prisma+Guard+IfPermission 점진 추가.
+- `2026-04-15` — Step 8 BFF 골격. `app/api/[...proxy]/route.ts` catch-all 프록시, `lib/api.ts` + `lib/api-server.ts` + `get-query-client.ts` + `QueryProvider`. admin :3000 → api :3001 프록시 end-to-end 검증(`/api/health` 200). 인증 연동은 Step 9에서.
