@@ -80,15 +80,25 @@ IAM / 공통 코드 / 프로필 / 공지 / 일정 / 대시보드 (상세는 spec
 3. `/dev <slice>` — TDD 개발 → 리뷰 → 테스트 → 커밋
 
 ## 현재 상태
-- **Phase**: 초기 세팅 진행 중 (`docs/setup.md` 참조)
-- **Step 1 완료**: `pnpm dlx create-turbo@latest .`로 Turborepo 골격 설치. starter가 만든 demo는 `apps/{web,docs}` + `packages/{ui,eslint-config,typescript-config}`. Step 2/3에서 admin/api로 갈아엎을 예정.
-- **다음**: Step 2 — apps/admin (Next.js 16) → Step 3 — apps/api (NestJS 11) → Step 4 — packages/ui + packages/types
+- **초기 세팅 완료** (`docs/setup.md` Step 1~4):
+  - 모노레포: Turborepo + pnpm workspace
+  - `apps/admin`: Next.js 16.2.3 + React 19 + Tailwind 4 + Turbopack (:3000)
+  - `apps/api`: NestJS 11.0.1 + jest (:3001)
+  - `packages/ui`, `packages/types`: 빈 껍데기 (workspace:* 등록됨)
+- **다음 후보 슬라이스**:
+  1. 디자인 시스템 (`packages/ui` 채우기 — shadcn/ui + Storybook)
+  2. config 통합 (`packages/config-{ts,eslint,tailwind}`)
+  3. BFF 골격 (`apps/admin/src/app/api/[...proxy]/route.ts`)
+  4. DB 스택 (Prisma + PostgreSQL + docker-compose)
+  5. 인증 (Keycloak + Auth.js)
+  6. 품질/CI (Husky + lint-staged + GitHub Actions)
 - **참고 문서**:
-  - `docs/setup.md` — 초기 세팅 진행 체크리스트 (사용자/에이전트 분담)
+  - `docs/setup.md` — 초기 세팅 작업 일지 (Step 1~4 완료 기록)
   - `docs/legacy/NEW-PROJECT-SPEC.md` — 전체 설계 명세 (원본)
   - `docs/legacy/01~09.md` — 레거시 프로젝트 학습 자료 (참고용)
   - `docs/harness.md` — 훅 설계
   - `docs/workflow.md` — 개발 워크플로우
+  - `apps/admin/AGENTS.md` — Next.js 16 deprecation 가이드 (next 코드 짤 때 참조)
 
 ## 이전 실무 레퍼런스
 `/Users/parkhansol/work/devel/uplex-dev/vdi-dev/usp-core-service/frontrend/usp-core-web-admin-module`
