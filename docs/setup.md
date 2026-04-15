@@ -156,16 +156,15 @@ pnpm lint
 
 ### 우선순위 A — SDD 진입 전 필수
 
-| Step | 주제                    | 비고                                                                                                         |
-| ---- | ----------------------- | ------------------------------------------------------------------------------------------------------------ |
-| 5    | 디자인 시스템 ✅        | shadcn v4.2 Nova, admin 내부 (완료)                                                                          |
-| 6    | **Husky + lint-staged** | 로컬 커밋 하네스. 다음 커밋부터 가치. **지금 진행**                                                          |
-| 7    | DB 인프라               | docker-compose(postgres) + Prisma 셋업 + 빈 schema. 도메인 기능의 전제                                       |
-| 8    | BFF route handler 골격  | `apps/admin/src/app/api/[...proxy]/route.ts` + lib/api(.ts/-server.ts) + Query Client 팩토리. admin↔api 연결 |
-| 9    | 인증 인프라             | Keycloak 컨테이너 + realm + Auth.js v5 + middleware.ts                                                       |
-| 10   | RBAC 베이스             | Prisma RBAC 스키마 + Guard/Decorator + `<IfPermission>`                                                      |
+| Step | 주제 | 비고 |
+|---|---|---|
+| 5 | 디자인 시스템 ✅ | shadcn v4.2 Nova, admin 내부 (완료) |
+| 6 | Husky + lint-staged ✅ | pre-commit에 prettier (md 제외, 완료) |
+| 7 | DB 인프라 ✅ | postgres 16 + Prisma 7(adapter-pg) + HealthCheck + /health. Keycloak은 주석 보류 (완료) |
+| 8 | **BFF route handler 골격** | `apps/admin/src/app/api/[...proxy]/route.ts` + lib/api(.ts/-server.ts) + Query Client 팩토리. admin↔api 연결 |
+| 9 | 인증 — Google OIDC | Auth.js v5 + Google Provider + middleware.ts. Keycloak은 on-prem 대체로 주석 보존 |
 
-> **SDD 진입 시점**: Step 10 완료 후 IAM 관리자 CRUD부터 `/planning iam-admin` 호출.
+> **SDD 진입 시점**: Step 9 완료 후 도메인 기능부터 `/planning <feature>`. RBAC은 별도 Step 없이 각 도메인 슬라이스에서 Prisma 모델 + Guard/`<IfPermission>`을 점진 추가.
 
 ### 우선순위 B — 필요해질 때 추가 ("지금 잠금해제 안 함")
 

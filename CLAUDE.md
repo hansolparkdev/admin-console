@@ -38,7 +38,7 @@ packages/
 - **언어**: TypeScript strict (+ `noUncheckedIndexedAccess`)
 - **Frontend (apps/admin)**: Next.js 16 App Router + React 19 + shadcn/ui + Radix + Tailwind 4 + CVA
 - **Backend (apps/api)**: NestJS 11 + Prisma 7 + PostgreSQL 16 + Redis
-- **인증**: Auth.js v5 + Keycloak (OIDC) — BFF 패턴, httpOnly 쿠키
+- **인증**: Auth.js v5 + Google OIDC (core 기본) — BFF 패턴, httpOnly 쿠키. Keycloak은 on-prem 배포 시 대체 가능(docker-compose 주석으로 보존).
 - **인가**: RBAC — Role / Permission / Menu (Permission 엔티티 정규화, 패턴 B)
 - **서버 상태**: TanStack Query v5
 - **클라이언트 상태**: Zustand v5
