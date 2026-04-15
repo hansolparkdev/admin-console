@@ -1,0 +1,8 @@
+{
+  "name": "@admin-console/testing",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "Apache-2.0",
+  "description": "Vitest/Playwright 공용 설정 (Phase 0 Slice 03은 placeholder, Slice 06에서 config 함수 export 예정)"
+}

@@ -23,6 +23,17 @@ importers:
       turbo:
         specifier: ^2.9.6
         version: 2.9.6
+      typescript:
+        specifier: ^6.0.2
+        version: 6.0.2
+
+  packages/config-env: {}
+
+  packages/config-eslint: {}
+
+  packages/config-ts: {}
+
+  packages/testing: {}
 
 packages:
 
@@ -490,6 +501,11 @@ packages:
   type-check@0.4.0:
     resolution: {integrity: sha512-XleUoc9uwGXqjWwXaUTZAmzMcFZ5858QA2vvx1Ur5xIcixXIP+8LnFDgRplU30us6teqdlskFfu+ae4K79Ooew==}
     engines: {node: '>= 0.8.0'}
+
+  typescript@6.0.2:
+    resolution: {integrity: sha512-bGdAIrZ0wiGDo5l8c++HWtbaNCWTS4UTv7RaTH/ThVIgjkveJt83m74bBHMJkuCbslY8ixgLBVZJIOiQlQTjfQ==}
+    engines: {node: '>=14.17'}
+    hasBin: true
 
   uri-js@4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
@@ -960,6 +976,8 @@ snapshots:
   type-check@0.4.0:
     dependencies:
       prelude-ls: 1.2.1
+
+  typescript@6.0.2: {}
 
   uri-js@4.4.1:
     dependencies:
