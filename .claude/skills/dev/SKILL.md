@@ -1,13 +1,12 @@
 ---
 name: dev
-description: 단일 슬라이스를 개발·리뷰·테스트·아카이브까지 처리. 커밋은 하지 않음(사용자 명시 승인 후 별도 진행). tasks.md 상태를 보고 중단 지점부터 재개. 사용법 /dev {slice}
+description: 단일 feature를 개발·리뷰·테스트·아카이브까지 처리. 커밋은 하지 않음(사용자 명시 승인 후 별도). 사용법 /dev {feature}
 ---
 
-단일 슬라이스의 개발부터 **아카이브까지** 처리합니다. 이미 일부 완료된 경우 **중단 지점부터 이어서** 진행합니다. 커밋은 이 스킬 범위 밖 — 아카이브 완료 리포트 후 사용자가 내용 확인하고 명시 승인할 때만 별도 커밋.
+단일 feature의 개발부터 아카이브까지 처리. 커밋은 사용자 명시 승인 후 별도.
 
 ## 사전 조건
-
-- `docs/specs/changes/$ARGUMENTS/` 존재 (없으면 `/spec` 먼저)
+- `docs/specs/changes/<feature>/` 존재 (없으면 `/spec` 먼저)
 - 루트 `CLAUDE.md` 존재
 
 ## Step 0: 재개 지점 판별
@@ -19,148 +18,92 @@ tasks.md 읽고 체크박스 상태 확인:
 - 전부 [ ]      → 처음부터 개발
 ```
 
-**추가 판별 (이미 리뷰·테스트 통과한 경우 재진입):**
+추가 판별: `.status` 파일 존재 시 `reviewed` → Step 4, `tested` → Step 5.
 
-- `docs/specs/changes/$ARGUMENTS/.status` 파일 존재 시 단계 정보 확인
-  - `reviewed` → 테스터부터
-  - `tested` → sync부터
-- 없으면 Step 1부터
+## Step 1: 컨텍스트 로드
 
----
+- `FEATURE` = `$ARGUMENTS`
+- proposal.md `## Meta`에서 `type`, `package` 추출
+- proposal.md `## Capabilities`에서 영향 capability 목록 추출
+- tasks.md에서 작업 목록
+- `docs/specs/changes/<feature>/specs/` 하위 **모든 capability의 spec.md**를 읽어 SCENARIOS로 병합 (capability 폴더 알파벳순)
+- CLAUDE.md에서 STACK 추출
+- `docs/plans/<feature>/plan.md` 존재 시 UX_POINTS 추출 (frontend만. Mode 2/3은 plan 없을 수 있음 — 없으면 UX_POINTS 빈값)
 
-## Step 1: 컨텍스트 로드 (1회)
+## Step 2: 개발 에이전트 호출
 
-### proposal.md + tasks.md 읽기
+전달: FEATURE, PACKAGE, TYPE, STACK, UX_POINTS, SCENARIOS, TASKS_PATH
 
-- `SLICE` = `$ARGUMENTS`
-- `TYPE` = proposal.md `type:`
-- `PACKAGE` = proposal.md `패키지:` (없거나 `.` → 루트)
-- `DOMAIN` = proposal.md `영향 도메인:` 주 도메인
-- `DEPENDS` = tasks.md `선행 슬라이스:`
+tasks.md 순서대로 TDD 진행. spec 시나리오는 단위/RTL 테스트 검증 기준.
 
-### 의존 확인
-
-`DEPENDS ≠ 없음` → `docs/specs/archive/*-{DEPENDS}/` 존재 확인. 없으면 유저 보고 후 중단.
-
-### CLAUDE.md 읽기
-
-- 모노레포면 `{PACKAGE}/CLAUDE.md` + 루트 CLAUDE.md
-- 단일이면 루트 CLAUDE.md
-- `STACK` 추출: 언어·프레임워크·UI 라이브러리·테스트 폴더·설치 명령·테스트 명령·E2E 명령·개발 서버·보안 스캔
-
-### plan.md UX 포인트 추출 (frontend 계열만)
-
-- `docs/plans/{FEATURE}/plan.md` 읽기 (FEATURE = SLICE에서 `-{suffix}` 제거)
-- `UX_POINTS` = 화면 구성 + UI/UX 원칙 섹션에서 hover·cursor·색상 토큰 등 핵심 포인트 리스트업
-
-### SCENARIOS 추출
-
-- `docs/specs/changes/{SLICE}/specs/{DOMAIN}/spec.md` 읽기
-- 각 Requirement → { id, name, given, when, then, api_spec? }
-
----
-
-## Step 2: 개발 (미완료 task가 있을 때만)
-
-개발 에이전트 호출:
-
-```
-SLICE, PACKAGE, TYPE, DOMAIN, STACK, UX_POINTS (frontend만), SCENARIOS, TASKS_PATH
-```
-
-추가 지시: `tasks.md에서 아직 [ ]인 task부터 이어서 수행`.
-
-결과에서 `CHANGED_FILES` 파싱.
-`.status` 파일에 `developed` 기록.
-
----
+`.status`에 `developed` 기록.
 
 ## Step 3: 리뷰 루프 (최대 3회)
 
-리뷰어 호출:
+리뷰어 호출: ROUND, FEATURE, TYPE, STACK, UX_POINTS, CHANGED_FILES
 
-```
-ROUND, SLICE, TYPE, STACK, UX_POINTS, CHANGED_FILES
-```
+**런타임 기동 검증 필수** (CLAUDE.md §금지 패턴 + docs/rules/dev-workflow.md).
 
-- PASS → `.status`에 `reviewed` 기록 → Step 4
-- FAIL → **피드백을 유저에게 그대로 출력**한 뒤 개발 에이전트 재호출 (피드백 반영 모드)
-- 3회 FAIL → changes/ 보존, 유저 개입 대기 (재개 시 `/dev {slice}`로 이어짐)
-
----
+- PASS → `reviewed` 기록 → Step 4
+- FAIL → 피드백 유저에게 출력 + 개발 에이전트 재호출
+- 3회 FAIL → 유저 개입 대기
 
 ## Step 4: 테스터 호출
 
-```
-SLICE, PACKAGE, TYPE, STACK, SCENARIOS
-```
+전달: FEATURE, PACKAGE, TYPE, STACK, SCENARIOS
 
-- PASS → `.status`에 `tested` 기록 → Step 5
-- FAIL → 유저 보고 후 중단 (changes/ 보존)
+테스터가 E2E 대상 선별 + 보안 검증.
 
----
+- PASS → `tested` 기록 → Step 5
+- FAIL → 유저 보고 후 중단
 
 ## Step 5: Sync
 
 ```
-docs/specs/changes/{SLICE}/specs/{DOMAIN}/spec.md → docs/specs/main/{DOMAIN}/spec.md
+docs/specs/changes/<feature>/specs/<capability>/spec.md
+  → docs/specs/main/<capability>/spec.md
 
-ADDED     → 추가 (파일 없으면 생성)
-MODIFIED  → ### Requirement: {name} 블록 단위 덮어쓰기
-REMOVED   → 블록 삭제
+ADDED → 추가 (파일 없으면 생성)
+MODIFIED → ### Requirement: {name} 블록 단위 덮어쓰기
+REMOVED → 블록 삭제
 순서: REMOVED → MODIFIED → ADDED
 ```
 
-실패 시 유저 보고 후 중단 (아카이브 금지).
-
----
+다중 capability면 capability별로 순차 Sync.
 
 ## Step 6: Archive
 
 ```
-docs/specs/changes/{SLICE}/  →  docs/specs/archive/YYYY-MM-DD-{SLICE}/
+docs/specs/changes/<feature>/
+  → docs/specs/archive/YYYY-MM-DD-<feature>/
 ```
 
-원본 폴더 삭제. `.status` 파일도 함께 이동.
-
----
+원본 폴더 삭제. `.status`도 함께 이동.
 
 ## Step 7: 완료 리포트
 
 ```
-✓ {SLICE} 아카이브까지 완료 (커밋 안 함)
+✓ <feature> 아카이브까지 완료 (커밋 안 함)
 
-- 개발: 태스크 {N}/{N}
-- 리뷰: {R}회차 PASS
-- 테스트: 시나리오 {P}/{T} PASS, 보안 critical 0
-- 아카이브: docs/specs/archive/YYYY-MM-DD-{SLICE}/
+- 개발: 태스크 N/N
+- 리뷰: R회차 PASS
+- 테스트: E2E N/N PASS, 보안 critical N / high N
+- 커버리지: 라인 XX% / 브랜치 XX% / 함수 XX%
+- 아카이브: docs/specs/archive/YYYY-MM-DD-<feature>/
 
 다음 중 선택:
-- 내용 확인 후 커밋 원하면: "이 슬라이스 커밋해줘" (사용자 승인)
-- 다음 슬라이스: /dev {next-slice}
+- 내용 확인 후 커밋 원하면: "커밋해줘"
+- 다음 feature
 ```
-
-커밋 메시지 제안 후보 (참고용, 실행은 사용자 승인 시):
-
-```
-feat({SLICE}): {proposal.md Intent 한 줄 요약}
-```
-
----
 
 ## 재진입 특수 모드
-
 - `sync만 실행해줘` → Step 5만
 - `테스트만 재실행해줘` → Step 4부터
 - `리뷰만 재실행해줘` → Step 3부터
 
----
-
 ## 규칙
-
-- 파일(CLAUDE.md, plan.md, proposal.md, tasks.md, spec.md)은 이 스킬에서만 읽음. 에이전트는 변수로만 접근.
-- 리뷰 FAIL 피드백은 **반드시 유저에게 그대로 출력**
-- Sync까지 모두 PASS해야 archive
-- 실패 지점에서 `.status` 파일로 단계 기록 → 재호출 시 이어서 진행
-- **커밋 금지**: 이 스킬은 절대 `git commit` 실행하지 않는다. 사용자가 아카이브 결과를 확인한 뒤 명시 승인해야 별도 커밋.
-- 롤백 지점은 아카이브 단계로 확보됨 (archive 폴더 + .status 기록). 커밋 전 되돌리기도 `git restore`/`git clean`으로 가능.
+- **커밋 금지**: 사용자 명시 승인 후 별도.
+- 리뷰어 런타임 검증 필수.
+- E2E는 headed 기본 (CI=1 우회 금지).
+- 다중 capability spec은 알파벳순 병합.
+- 실패 시 `.status`로 단계 기록 → 재호출 시 이어서 진행.

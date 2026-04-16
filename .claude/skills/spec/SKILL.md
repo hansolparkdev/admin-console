@@ -1,61 +1,100 @@
 ---
 name: spec
-description: plan.md를 아키텍트에 전달해 슬라이스별 SDD 산출물(proposal/design/tasks/spec)을 생성합니다. 사용법 /spec {feature}
+description: plan.md 기반 새 기능 스펙 생성, 또는 기존 스펙 변경/제거. 사용법 /spec {feature 또는 변경 요구사항}
 ---
 
-plan.md를 기반으로 슬라이싱하여 각 슬라이스의 SDD 산출물을 생성합니다.
+## 모드 판별
 
-## 사전 조건
-- `docs/plans/$ARGUMENTS/plan.md` 존재
-- 루트 `CLAUDE.md` 존재 (없으면 `/init` 먼저)
+/spec <arguments> 호출 시:
+- `docs/plans/<arguments>/plan.md` 존재 → **Mode 1** (새 기능)
+- 미존재 → `docs/specs/main/` 존재 여부 확인
+  - 존재 → **Mode 2** (변경) 또는 **Mode 3** (`--remove` 포함 시 제거)
+  - 미존재 → "기존 스펙 없음. /planning 먼저" 안내 후 중단
 
-## Step 1: 컨텍스트 추출
+---
 
-### 루트 CLAUDE.md 읽기
-- `STRUCTURE` = 프로젝트 타입 (frontend | backend | fullstack | monorepo)
-- `PACKAGES_LIST` = 모노레포면 apps/*, packages/* 목록
-- `STACK_MAP` = 모노레포면 패키지별 스택, 단일이면 전역 스택
+## Mode 1: 새 기능 (plan.md 기반)
 
-### 기존 스펙 도메인 목록
-- `EXISTING_DOMAINS` = `docs/specs/main/` 하위 폴더 목록
+### 사전 조건
+- `docs/plans/<arguments>/plan.md` 존재
+- 루트 `CLAUDE.md` 존재
 
-## Step 2: 아키텍트 호출
+### Step 1: 컨텍스트 추출
+- `STRUCTURE`, `PACKAGES_LIST`, `STACK_MAP` from CLAUDE.md
+- `EXISTING_CAPABILITIES` = `docs/specs/main/` 하위 폴더 목록
 
-전달 변수:
-- `FEATURE` = `$ARGUMENTS`
-- `STRUCTURE`
-- `PACKAGES` (모노레포만)
-- `STACK` (슬라이스가 여러 패키지로 갈릴 수 있으므로 맵 또는 전역값)
-- `EXISTING_DOMAINS`
+### Step 2: 아키텍트 호출 (Mode 1)
+전달 변수: FEATURE, STRUCTURE, PACKAGES, STACK, EXISTING_CAPABILITIES, MODE=1
 
-아키텍트는 `docs/plans/$ARGUMENTS/plan.md` 1회 읽고 `docs/specs/changes/{feature}-{slice}/` 아래 4개 파일 생성.
-
-## Step 3: 산출물 확인
-
-생성된 슬라이스 폴더를 나열하고 각 `proposal.md`에서:
-- `패키지:` 필드 (단일이면 `.`, 모노레포면 패키지 경로)
-- `type:` 필드
-- `영향 도메인:`
-
-`tasks.md`의 `선행 슬라이스:`로 의존관계 파악.
-
-## Step 4: 유저에게 슬라이스 계획 보고
+아키텍트가 plan.md 읽고 feature 폴더 생성:
 
 ```
-✓ 슬라이싱 완료: N개
-
-순서:
-1. {slice1}  [패키지: .]         의존: 없음
-2. {slice2}  [패키지: apps/web]  의존: 없음
-3. {slice3}  [패키지: apps/api]  의존: 없음
-
-다음 단계:
-/dev {slice1}     # 순서대로 각자 실행
-/dev {slice2}
-...
+docs/specs/changes/<feature>/
+├── proposal.md
+├── design.md
+├── tasks.md
+└── specs/
+    ├── <capability-1>/spec.md
+    └── <capability-2>/spec.md
 ```
+
+### Step 3: 산출물 확인 + 유저 보고
+
+```
+✓ 스펙 생성 완료
+
+feature: <feature>
+specs:
+- <capability-1>/spec.md (ADDED)
+- <capability-2>/spec.md (MODIFIED)
+
+다음 단계: /dev <feature>
+```
+
+---
+
+## Mode 2: 스펙 변경
+
+### 사전 조건
+- `docs/specs/main/` 하위에 기존 스펙 존재
+- `<arguments>`는 변경 요구사항 텍스트
+
+### Step 1: 아키텍트 호출 (Mode 2)
+전달 변수: REQUIREMENT_TEXT=<arguments>, EXISTING_CAPABILITIES, MAIN_SPECS_PATH=docs/specs/main/, STACK, MODE=2
+
+아키텍트가 `docs/specs/main/` 하위 모든 spec.md를 읽고 영향 Requirement 식별 후 산출물 생성.
+
+### Step 2: 유저에게 변경 영향 보고
+
+```
+✓ 스펙 변경 산출물 생성
+
+change: <change-name>
+영향 Requirement:
+- <capability>/<requirement-name> (MODIFIED)
+
+다음 단계: /dev <change-name>
+```
+
+---
+
+## Mode 3: 스펙 제거
+
+Mode 2와 동일하되 `--remove` 포함. 아키텍트에 MODE=3 전달. proposal에 REMOVED 마킹.
+
+```
+✓ 스펙 제거 산출물 생성
+
+change: <change-name>
+제거 Requirement:
+- <capability>/<requirement-name> (REMOVED)
+
+다음 단계: /dev <change-name>
+```
+
+---
 
 ## 규칙
 - 이 스킬은 스펙 생성만. 개발은 `/dev`가 담당.
-- 모노레포면 아키텍트가 반드시 패키지별로 슬라이스 분리해야 함
-- plan.md 이외 어떤 파일도 재편집하지 않음
+- Mode 1은 plan.md 이외 파일 재편집 금지.
+- Mode 2/3은 `docs/specs/main/` 읽기만. 직접 수정은 `/dev` Sync에서.

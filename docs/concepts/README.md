@@ -19,6 +19,7 @@
 |---|---|
 | [bff.md](bff.md) | Backend For Frontend — 브라우저/API 사이 Next.js 프록시 |
 | [httponly-session.md](httponly-session.md) | 세션은 httpOnly 쿠키만, localStorage 금지 이유 |
+| [oidc-authjs.md](oidc-authjs.md) | Google OIDC + Auth.js v5 — 세션 발급, 미들웨어 게이트, callbackUrl 검증 |
 | [query-key-factory.md](query-key-factory.md) | TanStack Query 키 팩토리 — 문자열 리터럴 금지 |
 | [query-client-ssr.md](query-client-ssr.md) | QueryClient 서버 per-request / 브라우저 singleton |
 | [prisma-driver-adapter.md](prisma-driver-adapter.md) | Prisma 7 driver adapter (adapter-pg) 구조 |
@@ -28,7 +29,6 @@
 
 구현 순서에 따라 도착할 때 쓴다:
 
-- `oidc-authjs.md` — Step 9 Google OIDC + Auth.js v5 구조
 - `rbac-pattern-b.md` — Role/Permission/Menu 정규화 (패턴 B)
 - `sse-vs-websocket.md` — 왜 실시간에 SSE를 골랐나
 - `monorepo-turborepo.md` — workspace 구조와 turbo 파이프라인 의도

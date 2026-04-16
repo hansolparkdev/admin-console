@@ -1,6 +1,7 @@
 # CLAUDE.md — Admin Console (루트)
 
 > 이 파일은 **Claude가 이 레포에서 코드를 짤 때 지켜야 할 규약의 단일 진실원**이다.
+> 핵심만 여기에, 상세는 `docs/rules/`로 참조.
 > 진행 상황은 `docs/setup.md`, 설계 명세는 `docs/legacy/NEW-PROJECT-SPEC.md`.
 
 ## 프로젝트 타입
@@ -76,76 +77,54 @@ packages/
 - ❌ **로딩/에러/빈 상태 미처리**. 3상태 모두 UI 있어야 함.
 - ❌ **`legacy/` 폴더 수정**. `docs/legacy/**`는 동결. 원본 그대로.
 - ❌ **`commitlint` 없이도 Conventional Commits 어기기**. 메시지는 `type(scope): subject` 패턴 고정.
+- ❌ **E2E를 `CI=1` / `--headless`로 우회 실행**. `pnpm e2e` 기본은 `--headed`(시각 확인). headless는 진짜 CI 환경에서만 자동 전환.
+- ❌ **Next.js 16에서 `middleware.ts` 사용**. `proxy.ts` 컨벤션으로. 다른 프레임워크 공식 예제(Auth.js 등)를 그대로 복사하지 말 것 — 프로젝트 Next 버전의 deprecation을 먼저 확인.
+- ❌ **리뷰어가 런타임 기동 없이 PASS 판정**. 상세 규율은 [docs/rules/dev-workflow.md](docs/rules/dev-workflow.md).
+- ❌ **`app/**/page.tsx` / `app/**/layout.tsx` 테스트 누락**. 라우트 컴포넌트는 RTL 또는 Playwright 중 한 곳에서 반드시 커버.
+- ❌ **TDD 태스크를 "실패 테스트 → 구현 → 그린" 증거 없이 체크 완료**. 증거는 리포트에 포함.
+- ❌ **`app/` 하위에 라우팅 파일 외 코드 배치** (`login-form.tsx` 같은 컴포넌트). Next.js 라우팅 파일(`page.tsx`/`layout.tsx`/`route.ts`/`proxy.ts`)만 `app/`에. 나머지는 `components/`(도메인 비종속) 또는 `features/<domain>/`(도메인 종속)으로. 상세: [docs/rules/folder-conventions.md](docs/rules/folder-conventions.md).
+- ❌ **파일명 casing 위반**. 컴포넌트 `.tsx`는 PascalCase, 유틸·서버 `.ts`는 kebab-case, shadcn `components/ui/*`만 kebab-case 예외. 상세는 §코드 컨벤션 표.
+- ❌ **default export 남용**. `page.tsx`·`layout.tsx`만 default, 나머지는 named export 강제.
 
-## 핵심 폴더 규칙 (apps/admin)
+## 참조 문서
 
-- `src/app/(auth)/*` — 인증 필요 라우트 (RBAC 적용)
-- `src/app/(public)/*` — 공개 라우트
-- `src/app/api/*` — BFF Route Handler
-- `src/features/<domain>/` — 도메인별 (api/components/queries/store/types)
-- `src/lib/api.ts` — 클라이언트 fetcher (`credentials: "include"`, baseURL `/api`)
-- `src/lib/api-server.ts` — 서버 fetcher (`server-only` + `auth()`)
-- `src/lib/get-query-client.ts` — QueryClient 팩토리 (서버 요청마다 새로 / 브라우저 싱글톤)
-- `src/components/ui/*` — shadcn 컴포넌트
-- `src/lib/utils.ts` — `cn` helper (clsx + tailwind-merge)
+필요할 때만 펼쳐보기 — CLAUDE.md는 매 요청 로드되므로 상세는 링크로.
 
-## 핵심 폴더 규칙 (apps/api)
-
-- `src/<domain>/` — 도메인 모듈 (controller/service/dto)
-- `src/auth/` — Keycloak Strategy, Guard
-- `src/rbac/` — Role/Permission/Menu, `@RequirePermission` 데코레이터
-- `src/prisma/` — Prisma module, client 싱글톤
-
-## 전체 명령
-
-| 명령             | 의미                                                         |
-| ---------------- | ------------------------------------------------------------ |
-| `pnpm install`   | 의존 설치                                                    |
-| `pnpm dev`       | 모든 앱 개발 서버 (turbo)                                    |
-| `pnpm build`     | 모든 앱 빌드                                                 |
-| `pnpm lint`      | 각 앱 ESLint (turbo run lint)                                |
-| `pnpm typecheck` | 각 앱 tsc --noEmit (turbo run check-types)                   |
-| `pnpm test`      | 단위 테스트 (Vitest 등, 각 앱 test 스크립트)                 |
-| `pnpm e2e`       | E2E 테스트 (Playwright, 기본 `--headed` / CI는 `--headless`) |
-| `pnpm format`    | prettier --write                                             |
-| `pnpm audit`     | 의존 보안 스캔                                               |
-
-### 인프라 명령
-
-| 명령                                                       | 의미                                   |
-| ---------------------------------------------------------- | -------------------------------------- |
-| `docker compose -f docker/docker-compose.yml up -d`        | postgres + keycloak 기동               |
-| `docker compose -f docker/docker-compose.yml down`         | 컨테이너 중지·제거 (볼륨 유지)         |
-| `docker compose -f docker/docker-compose.yml down -v`      | + 볼륨 초기화 (init SQL 재실행 필요 시) |
-| `pnpm --filter @admin-console/api db:migrate`              | Prisma migration dev 적용              |
-| `pnpm --filter @admin-console/api db:generate`             | Prisma client 재생성                   |
-| `pnpm --filter @admin-console/api db:studio`               | Prisma Studio GUI                      |
-
-- Postgres: `localhost:5432` (user/pw: `admin_console`/`admin_console`, DBs: `admin_console`, `keycloak`)
-- Keycloak: `http://localhost:8080` (admin/admin)
-- Redis는 SSE 슬라이스 전까지 미포함 (`docker/docker-compose.yml`에 주석으로 남음).
-
-## 개발 흐름
-
-1. **인프라/스캐폴딩** → `docs/setup.md`에 Step으로 누적 (plan 문서 없음).
-2. **제품 기능 (테스트 가능한 사용자 시나리오 있음)** → `/planning <feature>` → `/spec` → `/dev`.
-3. 판단 기준: "이 작업의 산출물에 E2E 시나리오가 있는가?" 있으면 SDD, 없으면 setup.md.
-4. **새 패턴·라이브러리·보안 결정은 `docs/concepts/`에 개념 문서도 동시에 작성**. "왜 이렇게 만들었는지"를 설명할 수 있어야 한다. 구현만 하고 개념 생략 금지.
-
-## 개념 문서 (`docs/concepts/`)
-
-현재 작성된 개념:
-
-- [BFF 패턴](docs/concepts/bff.md)
-- [httpOnly 세션 쿠키](docs/concepts/httponly-session.md)
-- [Query Key Factory](docs/concepts/query-key-factory.md)
-- [QueryClient SSR 구조](docs/concepts/query-client-ssr.md)
-- [Prisma 7 Driver Adapter](docs/concepts/prisma-driver-adapter.md)
-- [shadcn 아키텍처](docs/concepts/shadcn-architecture.md)
-
-목록은 `docs/concepts/README.md`에 인덱스로 관리.
+| 주제 | 문서 |
+| --- | --- |
+| apps/admin, apps/api 폴더 배치 | [docs/rules/folder-conventions.md](docs/rules/folder-conventions.md) |
+| /dev 스킬의 Developer / Reviewer / Tester 규율 | [docs/rules/dev-workflow.md](docs/rules/dev-workflow.md) |
+| 전체 pnpm 명령 + 인프라 명령 | [docs/rules/commands.md](docs/rules/commands.md) |
+| 인프라 vs SDD 트랙 분기, SDD 산출물 위치 | [docs/rules/dev-flow.md](docs/rules/dev-flow.md) |
+| 설계 개념 (BFF, httpOnly, Query Key, Prisma 등) | [docs/concepts/](docs/concepts/) |
+| 진행 상황 (인프라 Step 1~N 누적) | [docs/setup.md](docs/setup.md) |
+| 전체 설계 명세 (원본) | [docs/legacy/NEW-PROJECT-SPEC.md](docs/legacy/NEW-PROJECT-SPEC.md) |
 
 ## 코드 컨벤션
+
+### 파일명
+
+| 대상 | 규칙 | 예 |
+| --- | --- | --- |
+| React 컴포넌트 `.tsx` | **PascalCase** (파일명 = 컴포넌트명) | `LoginForm.tsx`, `Header.tsx`, `UserMenu.tsx` |
+| 테스트 | 대상 이름 그대로 + `.test.tsx`/`.test.ts` | `LoginForm.test.tsx`, `callback-url.test.ts` |
+| 유틸·서버 코드·타입 `.ts` | **kebab-case** | `api-server.ts`, `callback-url.ts`, `auth-error-messages.ts` |
+| shadcn `components/ui/*` | **kebab-case** (shadcn CLI 기본값, 예외) | `dropdown-menu.tsx`, `alert-dialog.tsx` |
+| Next.js 라우팅 파일 | Next.js 규약 (`page.tsx`, `layout.tsx`, `route.ts`, `proxy.ts` 등) 소문자 고정 | `page.tsx`, `proxy.ts` |
+
+### Export 방식
+
+| 파일 유형 | export |
+| --- | --- |
+| `app/**/page.tsx`, `app/**/layout.tsx` | **default** (Next.js 강제) |
+| `app/**/route.ts`, `proxy.ts` | **named** (`GET`, `POST`, `middleware` 등, Next.js 규약) |
+| 일반 컴포넌트 | **named** (`export function UserMenu() {...}`) |
+| shadcn `components/ui/*` | **named** (shadcn 기본) |
+| 유틸 (`lib/*`) | **named** |
+
+default export는 위 2개 예외(page/layout)만. 그 외는 named export 강제 — rename safety + grep·refactor 안정성.
+
+### 기타
 
 - ESLint/Prettier가 자동 적용. 예외 규칙은 각 패키지 `CLAUDE.md`(있는 경우)에 명시.
 - 주석은 "왜"만 (무엇/어떻게는 코드가 설명). 한 줄이면 충분할 때 여러 줄 쓰지 않는다.
