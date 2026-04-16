@@ -18,3 +18,31 @@ model HealthCheck {
   note      String
   createdAt DateTime @default(now())
 }
+
+// google-oidc-login: Google OIDC 인증 사용자 레코드
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  picture   String?
+  provider  String   @default("google")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  accounts Account[]
+}
+
+// google-oidc-login: OAuth provider 연결 레코드 (Auth.js 호환)
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  provider          String
+  providerAccountId String
+  accessToken       String?
+  refreshToken      String?
+  expiresAt         Int?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}

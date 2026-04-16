@@ -31,6 +31,8 @@
     "@prisma/adapter-pg": "^7.7.0",
     "@prisma/client": "^7.7.0",
     "dotenv": "^17.4.2",
+    "google-auth-library": "^10.6.2",
+    "jose": "^6.2.2",
     "pg": "^8.20.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"
@@ -77,6 +79,9 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "transformIgnorePatterns": [
+      "node_modules/(?!(jose)/)"
+    ]
   }
 }

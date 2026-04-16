@@ -1,6 +1,11 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { Header } from "@/components/layout/Header";
+
+// performSignOut 모킹 (클라이언트 전용)
+vi.mock("@/features/auth/api", () => ({
+  performSignOut: vi.fn(),
+}));
 
 const NEW_SEARCH_PLACEHOLDER = "시스템 기능 검색...";
 

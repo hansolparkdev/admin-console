@@ -1,12 +1,23 @@
 "use client";
 
-// TODO(google-oidc-login): 세션 기반 사용자 정보로 교체
-
 import Link from "next/link";
-import { Bell, Sun } from "lucide-react";
+import { Bell, Sun, LogOut } from "lucide-react";
 import { SearchInput } from "@/components/layout/SearchInput";
+import { performSignOut } from "@/features/auth/api";
 
-export function Header() {
+export interface HeaderProps {
+  /** 현재 세션 사용자 정보 (서버 컴포넌트에서 auth()로 읽어 전달) */
+  user?: {
+    name?: string | null;
+    email?: string | null;
+    image?: string | null;
+  } | null;
+}
+
+export function Header({ user }: HeaderProps = {}) {
+  const displayName = user?.name ?? "Admin_User";
+  const displayEmail = user?.email ?? "";
+
   return (
     <header
       role="banner"
@@ -134,9 +145,33 @@ export function Header() {
               color: "var(--on-surface)",
             }}
           >
-            Admin_User
+            {displayName}
           </span>
         </Link>
+
+        {/* Logout button */}
+        <button
+          type="button"
+          aria-label="로그아웃"
+          onClick={() => {
+            void performSignOut();
+          }}
+          title={displayEmail || undefined}
+          style={{
+            width: "40px",
+            height: "40px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: "50%",
+            color: "var(--on-surface-variant)",
+            backgroundColor: "transparent",
+            cursor: "pointer",
+          }}
+          className="hover:bg-[var(--header-button-hover-bg)] focus-visible:outline-none focus-visible:ring-2"
+        >
+          <LogOut size={18} aria-hidden="true" />
+        </button>
       </div>
     </header>
   );
