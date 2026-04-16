@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+
+<html lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-dim": "#cfdce3",
+                        "on-background": "#2a3439",
+                        "on-tertiary-fixed": "#3e3a54",
+                        "on-secondary": "#f8f8ff",
+                        "secondary-fixed": "#d5e3fc",
+                        "surface": "#f7f9fb",
+                        "outline": "#717c82",
+                        "on-primary": "#f8f7ff",
+                        "inverse-on-surface": "#9a9d9f",
+                        "surface-container-highest": "#d9e4ea",
+                        "tertiary-fixed": "#e3dbfd",
+                        "on-primary-fixed": "#003798",
+                        "tertiary-dim": "#54506b",
+                        "tertiary-container": "#e3dbfd",
+                        "primary": "#0053db",
+                        "on-surface-variant": "#566166",
+                        "on-tertiary": "#fcf7ff",
+                        "tertiary-fixed-dim": "#d4cdee",
+                        "on-secondary-fixed-variant": "#4e5c71",
+                        "surface-bright": "#f7f9fb",
+                        "on-surface": "#2a3439",
+                        "inverse-primary": "#618bff",
+                        "primary-dim": "#0048c1",
+                        "inverse-surface": "#0b0f10",
+                        "secondary": "#526074",
+                        "secondary-fixed-dim": "#c7d5ed",
+                        "on-error-container": "#752121",
+                        "on-primary-container": "#0048bf",
+                        "on-error": "#fff7f6",
+                        "error": "#9f403d",
+                        "on-tertiary-fixed-variant": "#5b5672",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary": "#605c78",
+                        "on-secondary-fixed": "#324053",
+                        "primary-container": "#dbe1ff",
+                        "error-container": "#fe8983",
+                        "surface-container-low": "#f0f4f7",
+                        "surface-container-high": "#e1e9ee",
+                        "on-primary-fixed-variant": "#0050d4",
+                        "surface-tint": "#0053db",
+                        "outline-variant": "#a9b4b9",
+                        "on-secondary-container": "#455367",
+                        "secondary-dim": "#465468",
+                        "surface-container": "#e8eff3",
+                        "error-dim": "#4e0309",
+                        "secondary-container": "#d5e3fc",
+                        "primary-fixed": "#dbe1ff",
+                        "surface-variant": "#d9e4ea",
+                        "on-tertiary-container": "#514d68",
+                        "primary-fixed-dim": "#c7d3ff",
+                        "background": "#f7f9fb"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .bg-login-left {
+            background-color: #0f172a;
+            background-image: radial-gradient(circle at top right, rgba(37, 99, 235, 0.12), transparent 40%);
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface overflow-hidden">
+<!-- Split Layout Container -->
+<main class="flex h-screen w-full">
+<!-- Left Panel (55%) -->
+<section class="hidden lg:flex lg:w-[55%] bg-login-left relative flex-col justify-between p-20">
+<!-- Brand Wordmark Area -->
+<div>
+<div class="flex flex-col gap-1">
+<h1 class="font-headline font-bold text-3xl tracking-widest text-white">ADMIN CONSOLE</h1>
+<span class="text-[12px] text-slate-500 font-medium">운영 콘솔</span>
+</div>
+</div>
+<!-- Central Content -->
+<div class="max-w-xl">
+<!-- Feature Chips -->
+</div>
+<!-- Copyright -->
+<div>
+<p class="text-slate-500 text-[11px] font-medium">
+                    © 2025 Admin Console
+                </p>
+</div>
+</section>
+<!-- Right Panel (45%) -->
+<section class="w-full lg:w-[45%] bg-surface flex flex-col justify-center items-center p-6 sm:p-12">
+<!-- Login Card Container -->
+<div class="w-full max-w-[420px]">
+<div class="bg-surface-container-lowest rounded-xl shadow-[0px_12px_32px_rgba(42,52,57,0.06)] p-10">
+<!-- Header -->
+<div class="mb-8">
+<span class="text-primary font-bold text-[11px] tracking-[0.15em] uppercase block mb-2">로그인</span>
+<h3 class="font-headline font-extrabold text-slate-900 text-2xl mb-2">콘솔에 접속하세요</h3>
+<p class="text-slate-500 text-[14px]">조직 Google 계정으로 로그인해 주세요.</p>
+</div>
+<!-- Action Area -->
+<div class="space-y-6">
+<!-- Google Login Button -->
+<button class="w-full h-[48px] flex items-center justify-center gap-3 bg-gradient-to-br from-blue-700 to-blue-800 hover:from-blue-800 hover:to-blue-900 text-white rounded-xl font-semibold transition-all duration-200">
+<div class="w-6 h-6 bg-white rounded-full flex items-center justify-center p-1">
+<svg height="18" viewbox="0 0 18 18" width="18">
+<path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" fill="#4285F4"></path>
+<path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853"></path>
+<path d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707s.102-1.167.282-1.707V4.961H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.039l3.007-2.332z" fill="#FBBC05"></path>
+<path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.961L3.964 7.293C4.672 5.166 6.656 3.58 9 3.58z" fill="#EA4335"></path>
+</svg>
+</div>
+<span>Google 계정으로 계속하기</span>
+</button>
+<!-- Info Box -->
+<div class="bg-surface-container-low rounded-lg px-4 py-3 flex gap-3 items-start">
+<span class="material-symbols-outlined text-[18px] text-slate-500 mt-0.5" data-icon="info">info</span>
+<p class="text-slate-600 text-[12px] leading-relaxed">
+                                조직 계정만 허용됩니다. 개인 Gmail 계정은 거부됩니다.
+                            </p>
+</div>
+</div>
+<!-- Legal & Footer -->
+<div class="mt-10 pt-6 border-t border-slate-100">
+<p class="text-slate-500 text-[12px] text-center mb-8">
+                            계속 진행하면 <a class="underline hover:text-primary transition-colors" href="#">이용 약관</a>에 동의하는 것으로 간주됩니다.
+                        </p>
+<div class="flex justify-between items-center text-[11px] text-slate-400 font-medium">
+<div class="flex gap-3">
+<a class="hover:text-slate-600 transition-colors" href="#">상태</a>
+<span class="text-slate-200">•</span>
+<a class="hover:text-slate-600 transition-colors" href="#">도움말</a>
+</div>
+<span class="font-mono">v1.0</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+</body></html>

@@ -6,6 +6,7 @@ CLAUDE.md의 "규약 본체"에서 분할한 세부 규칙들. CLAUDE.md는 매 
 
 | 문서 | 내용 |
 | --- | --- |
+| [forbidden-patterns.md](forbidden-patterns.md) | **금지 패턴 상세**. CLAUDE.md 요약의 단일 진실원. 서브에이전트(developer·reviewer·critic) 프리로드 필수 |
 | [folder-conventions.md](folder-conventions.md) | apps/admin, apps/api 폴더 배치 규칙. 새 파일 위치 결정 시 참조 |
 | [dev-workflow.md](dev-workflow.md) | `/dev` 스킬의 Developer / Reviewer / Tester 각 Step 규율. E2E 우회 금지 등 |
 | [commands.md](commands.md) | 전체 pnpm 명령 + 인프라(docker/prisma) 명령 표 |
