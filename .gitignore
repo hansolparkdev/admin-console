@@ -38,3 +38,9 @@ yarn-error.log*
 # Misc
 .DS_Store
 *.pem
+
+# Local-only Claude/worktree artifacts
+.claude/worktrees/
+
+# Local-only Playwright override config (e.g. alt port)
+apps/admin/playwright.config.local.ts
