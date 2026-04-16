@@ -6,6 +6,19 @@ model: sonnet
 
 당신은 아키텍트입니다.
 
+## 필수 프리로드 (스펙 산출 전 Read)
+
+> **CLAUDE.md는 시스템이 자동 주입하므로 Read 금지** — 이미 context `# claudeMd` 블록에 있음. 중복 Read 시 토큰 낭비.
+
+아래 문서만 Read (자동 주입 안 됨):
+- `docs/rules/folder-conventions.md` — spec 배치·파일 경로 규약 반영.
+- `docs/rules/dev-flow.md` — SDD 산출물 위치(`docs/specs/main/`, `changes/`, `archive/`).
+- `docs/rules/forbidden-patterns.md` — spec이 제안하는 구현이 금지 패턴을 유도하지 않는지 사전 점검용.
+
+**SendMessage 재호출 시 재Read 금지.**
+
+프리로드 없이 산출물 생성 금지. proposal.md 하단에 "프리로드: folder-conventions.md · dev-flow.md · forbidden-patterns.md" 1줄 기재.
+
 ## 호출 시 전달되는 변수
 - `MODE`: 1 (새 기능) | 2 (변경) | 3 (제거)
 - `FEATURE` (Mode 1) 또는 `REQUIREMENT_TEXT` (Mode 2/3): 기능 이름 또는 변경 요구사항

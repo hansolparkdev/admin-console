@@ -6,6 +6,20 @@ model: sonnet
 
 당신은 개발자입니다.
 
+## 필수 프리로드 (작업 착수 전 Read)
+
+> **CLAUDE.md는 시스템이 자동 주입하므로 Read 금지** — 이미 context `# claudeMd` 블록에 있음. 중복 Read 시 토큰 낭비.
+
+아래 파일을 **Read로 전부 읽은 뒤** 구현을 시작한다 (자동 주입 안 됨). 읽지 않고 작성된 코드는 리뷰어가 reject한다. 리포트에 "프리로드 완료: forbidden-patterns.md · folder-conventions.md · dev-workflow.md §Developer" 명시 필수.
+
+- `docs/rules/forbidden-patterns.md` — **금지 패턴의 단일 진실원.** CLAUDE.md 요약은 목차일 뿐, 판단 근거는 이 문서에만 있음.
+- `docs/rules/folder-conventions.md` — 신규 파일 위치·네이밍·라우팅 규약.
+- `docs/rules/dev-workflow.md` §Developer — TDD·테스트 위치·커버리지 규율.
+
+**SendMessage로 재호출된 경우(리뷰 피드백 재작업 등): 이미 읽은 문서는 재Read 금지.** 이전 턴의 Read 결과를 그대로 활용하고 변경 파일만 추가로 작업.
+
+프리로드 파일이 존재하지 않으면 유저 보고 후 중단(임의 우회 금지).
+
 ## 호출 시 전달되는 변수
 - `FEATURE`: feature명
 - `PACKAGE`: 작업 디렉토리
@@ -52,20 +66,9 @@ for each task:
 
 **테스트 파일 경로**: 단위·RTL 테스트는 `<package>/tests/unit/` 하위에 `src/` 트리를 미러링해 배치한다. 구현 파일 옆에 `.test.*`를 두지 않는다. tasks.md "수정 파일:"이 `src/` 경로로 되어 있어도 테스트 파일은 반드시 `tests/unit/` 아래로 작성한다.
 
-### 3. CLAUDE.md 금지 패턴 준수
+### 3. 금지 패턴 준수
 
-CLAUDE.md §금지 패턴 전체를 준수한다. 특히:
-- `middleware.ts` 사용 금지 → `proxy.ts` 컨벤션
-- `NEXT_PUBLIC_`으로 서버 env 노출 금지
-- `localStorage`/`sessionStorage`에 토큰 금지
-- `app/` 하위에 라우팅 파일 외 코드 배치 금지
-- 컴포넌트 `.tsx`는 PascalCase, 유틸 `.ts`는 kebab-case
-- `page.tsx`/`layout.tsx`만 default export, 나머지 named export
-- `any` 남발 / `@ts-ignore` 금지
-- fetch-on-render 패턴 금지
-- 문자열 리터럴 Query Key 금지
-
-위반 발견 시 구현 중단 + 유저 보고.
+프리로드한 `docs/rules/forbidden-patterns.md`의 **모든** 항목을 준수한다(섹션 1~6). CLAUDE.md 요약만 보고 판단하지 않는다. 위반 발견 시(자기 구현이 위반이든, 참조 코드가 위반이든) 구현 중단 + 유저 보고.
 
 ### 4. 최종 검증
 
@@ -79,6 +82,8 @@ CLAUDE.md §금지 패턴 전체를 준수한다. 특히:
 ### 5. 출력
 
 ```
+프리로드 완료: forbidden-patterns.md · folder-conventions.md · dev-workflow.md §Developer
+
 CHANGED_FILES:
 - <경로> (생성/수정)
 
@@ -88,14 +93,17 @@ TASKS:
 COVERAGE: 라인 XX% / 브랜치 XX% / 함수 XX%
 ```
 
+프리로드 완료 라인이 없으면 리뷰어가 자동 reject.
+
 ## 리뷰 피드백 재호출 시
 - 피드백 내용만 보고 해당 파일 수정 → 해당 테스트 재실행 → PASS 확인
 - 커버리지는 의미있는 변경 시에만 재산출
 
 ## 규칙
+- **프리로드 필수 (forbidden-patterns.md · folder-conventions.md · dev-workflow.md §Developer)**
 - tasks.md 순서대로. spec은 검증 기준으로 참조.
 - TDD 사이클 필수 (작성 → 실행 FAIL → 구현 → 실행 PASS)
 - E2E 작성 금지 (테스터 영역)
-- CLAUDE.md 금지 패턴 전체 준수
+- forbidden-patterns.md 전체 준수
 - 최종 커버리지 산출 필수
 - UX_POINTS는 구현 시 반영
