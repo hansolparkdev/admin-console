@@ -1,73 +1,83 @@
 ## Context
 
-apps/admin은 Step 8(BFF 프록시 + TanStack Query 레일)까지 구축되어 있으나, 로그인 wipe 이후 `app/page.tsx`는 Next.js 기본 placeholder 상태다. 사이드바·헤더·메인 영역이 없어 이후 기능 슬라이스들이 얹힐 공통 프레임이 없다. Tailwind 4 + shadcn/ui + CSS 변수 기반 "Executive Lens" 디자인 시스템 토큰은 이미 globals.css에 부분 정의되어 있다.
+커밋 `fea82f6`(2026-04-15)에서 admin-shell이 Stitch "Admin Console Layout" 프로젝트의 Executive Lens 초기 시안 기준으로 구현됐다. 이후 동일 Stitch 프로젝트의 "관리자 관리" 스크린(`screens/22a279f223604f1d9366dd0d6f8cdbd9`)으로 목업이 교체되어 사이드바 배경·워드마크·활성 메뉴 스타일·헤더 구성이 모두 변경됐다. Shell 파일 구조(`(app)` 라우트 그룹, hook point, `(public)` 미적용)와 No-Line 원칙은 그대로 유지하며, 내부 마크업·스타일·메뉴 구성·라우트명만 in-place 개편한다.
 
 ## Goals / Non-Goals
 
 **Goals:**
-- 사이드바(256px) + 글래스 헤더(64px) + 메인 영역으로 구성된 데스크톱 전용 Shell 프레임 구축
-- CSS 변수(`--sidebar-width`, `--header-height`, `--header-glass-bg`) 단일 진실원 확립
-- 로그인 슬라이스가 꽂힐 auth() hook point를 `(app)/layout.tsx`에 명시
-- No-Line 원칙·접근성 랜드마크·키보드 탐색·Lighthouse 기준(성능 ≥ 90, 접근성 ≥ 95, CLS ≤ 0.02) 충족
+- Stitch "관리자 관리" 스크린 strict 충실도 반영 (허용 편차는 아래 Decisions에 명시)
+- `/users` → `/admins` 라우트 리네임으로 도메인 확정 및 Ghost 라우트 제거
+- Main footer(`role="contentinfo"`) 신설로 Shell 4영역 완성
+- CSS 토큰 단일 진실원 유지 (`globals.css` `:root`만 hex/rgba 허용)
+- 접근성 랜드마크·Tab 순서 7단계 일치 유지
 
 **Non-Goals:**
-- 인증·RBAC 적용 (로그인 슬라이스 담당)
-- 실제 API 데이터 렌더 (Dashboard/Users는 placeholder)
-- 모바일·태블릿 반응형 (후속 슬라이스)
-- 다크모드 검증 (변수는 준비하되 검증은 후속)
-- 사이드바 접기/펼치기 토글 (M5, 후속)
+- 다크모드 시각 검증 — `.dark` 블록 일부 값 유지에 그침
+- 라이트/다크 토글 실동작
+- 관리자 관리 페이지 본문 UI
+- 인증 가드 실구현
 
 ## Decisions
 
-### 1. 라우트 그룹 이름 `(app)` 확정
+### 1. 라이트토글 noop + aria-pressed 부재
 
-`(auth)`, `(dashboard)`, `(protected)` 등 의미 선점 이름을 피하고 중립명 `(app)`을 사용한다.
+라이트/다크 토글 버튼은 본 슬라이스에서 클릭해도 테마 전환이 없으므로 toggle pressed 상태가 없다. `aria-pressed`를 `false`로 고정하면 스크린리더가 "버튼, 토글되지 않음"을 읽어 실제 noop과 불일치 메시지를 발신한다. `aria-pressed` 속성 자체를 생략해 일반 버튼으로 노출하고, 실제 토글 슬라이스 도입 시 속성을 추가하는 방식이 더 정직한 접근이다.
 
-**이유**: 로그인 슬라이스가 `(auth)` 그룹을 별도로 가질 수 있으며, Shell 그룹명이 특정 보안 의미를 내포하면 후속 슬라이스 병합 시 혼란이 생긴다. `(app)` 그룹은 "이 앱의 공통 Shell 아래에 있는 페이지"를 나타내는 구조적 의미만 가지며, auth() 가드는 layout.tsx hook point에 후속 micro-PR로 추가된다.
+**이유**: ARIA 1.2 기준 `aria-pressed` 없는 `role="button"`은 상태 없는 버튼을 의미함. 실제 동작 없이 `aria-pressed="false"` 선언은 접근성 거짓 정보.
 
-### 2. No-Line 원칙 예외 없음
+### 2. 프로필 이미지: 회색 원 placeholder (`<img>` 미사용)
 
-Sidebar·Header·Main 경계 및 활성 메뉴 강조에 border 계열 클래스(`border`, `border-t/b/l/r`, `divide-*`)를 일체 사용하지 않는다.
+Stitch HTML 원본은 Google CDN(`lh3.googleusercontent.com/aida-public/...`) 실제 이미지를 사용한다. 그러나 외부 CDN 이미지는 Next.js `next/image` remotePatterns 설정·저작권·CSP 영향이 있고, 로그인 슬라이스 병합 전에는 실제 세션 프로필이 없다. `<img>` 없이 빈 회색 원(`<div>`)으로 동일 크기를 점유하며 레이아웃 일관성을 유지한다.
 
-**이유**: Executive Lens 디자인 시스템은 "톤 레이어링"으로 영역을 구분한다. border 라인은 시각적 무게를 높여 운영 콘솔의 집중도를 해친다. 활성 메뉴도 좌측 accent 라인이 아니라 `var(--sidebar-accent)` 배경 전체 강조로 통일한다. grep 자동 검증(`apps/admin/src/components/layout/**` + `apps/admin/src/app/(app)/**` 범위)으로 회귀를 방지한다.
+**이유**: 외부 이미지 CDN 의존 없이 레이아웃 점유는 동일. 로그인 병합 시 hook point 주석(`// TODO(google-oidc-login)`)에서 교체.
 
-### 3. CSS 변수 신설 (`--sidebar-width`, `--header-height`, `--header-glass-bg`)
+### 3. 관리자 관리 아이콘: lucide `ShieldCheck` (Material Symbols 미사용)
 
-레이아웃 구조 치수와 글래스 배경을 CSS 변수로 추상화하여 globals.css `:root`/`.dark` 블록에 선언한다.
+Stitch HTML은 Material Symbols `manage_accounts`를 사용한다. 프로젝트는 `lucide-react` 전체 통일 정책이며 Material Symbols 추가는 외부 폰트 CDN 의존과 번들 증가를 유발한다. lucide에 `manage_accounts` 정확 매치가 없어 RBAC 관리자 성격을 직접 표현하는 `ShieldCheck`를 선택한다(`UserCog`는 계정 설정 뉘앙스로 오독 가능).
 
-**이유**: 사이드바 폭·헤더 높이·Main offset이 세 곳(`margin-left`, `margin-top`, `position: fixed left/top`)에 반복된다. 변수 없이 리터럴로 쓰면 폭 변경 시 한 곳이 빠지는 R2 리스크가 현실화된다. 글래스 배경(`--header-glass-bg`)을 변수화하면 다크모드 슬라이스에서 `.dark` 블록만 수정하면 된다.
+**이유**: lucide 단일 라이브러리 유지. `ShieldCheck`이 "권한 가진 관리자" 의미를 가장 근접하게 전달.
 
-### 4. `lib/navigation/` 배치 확정
+### 4. 라우트 리네임 /users → /admins (git mv)
 
-메뉴 설정(`menu-config.ts`)과 활성 판정 로직(`is-menu-active.ts`)을 `features/` 하위가 아닌 `lib/navigation/`에 배치한다.
+`git mv`로 디렉터리 단위 이동해 파일 히스토리를 보존한다. 삭제·재생성이 아닌 이동이므로 git blame·리뷰가 연속성을 유지한다.
 
-**이유**: 네비게이션은 특정 비즈니스 도메인(users, dashboard 등)에 종속되지 않는 인프라성 코드다. `features/<domain>/`은 특정 도메인의 UI·로직 집합이므로 Shell 전체에 걸쳐있는 메뉴 설정을 담기에 부적절하다. `lib/`는 앱 전역에서 공유되는 순수 유틸의 위치다.
+**이유**: 히스토리 보존이 코드 리뷰 맥락 유지에 중요. 삭제 커밋이면 이전 기획 결정 추적이 어려워짐.
 
-### 5. 워드마크를 `<Link href="/dashboard">`로 선택
+### 5. 워드마크 aria-label + 자식 aria-hidden
 
-사이드바 상단 "Admin Console" 워드마크를 `<span>` 또는 `<h1>`이 아닌 `<Link href="/dashboard">`로 구현한다.
+워드마크 `<Link>`에 `aria-label="ADMIN CONSOLE 홈"`을 선언하고 내부 `<h2>`·`<p>`는 `aria-hidden="true"`로 처리한다. 링크의 accessible name이 aria-label로 단일화되어 스크린리더가 "ADMIN CONSOLE / Admin Console System / ADMIN CONSOLE 홈" 중복 읽기를 하지 않는다.
 
-**이유**: Tab 순회의 첫 번째 포커스 가능 요소가 되어야 한다(§4.3). `<span>`/`<h1>`은 포커스 불가라 키보드 사용자가 홈으로 이동할 진입점을 잃는다. `<Link>`는 포커스 가능하며 홈 이동 시맨틱을 동시에 충족한다. 이로 인해 Tab 6회 순서(워드마크 → Dashboard → Users → 검색 → 알림 → 도움말)가 확정된다.
+**이유**: ARIA 1.2 accessible name 연산 규칙에서 aria-label이 자식 텍스트보다 우선함. 자식 aria-hidden은 중복 읽기 방지를 명시적으로 보장.
 
-### 6. `SidebarNav`만 `"use client"` 격리
+### 6. Main footer 포함 — Shell 공통 요소로
 
-활성 메뉴 판정을 위한 `usePathname()` 호출을 `SidebarNav.tsx` 하나에만 격리하고, `Sidebar.tsx`·`SidebarUserFooter.tsx`·`Header.tsx`는 Server Component로 유지한다.
+Stitch "관리자 관리" 스크린 하단에 copyright footer가 있다. 페이지별 삽입이 아닌 `(app)/layout.tsx`의 Shell 공통 마지막 요소로 포함해 모든 인증 필요 페이지에서 일관성을 유지한다.
 
-**이유**: SSR 시 pathname을 알 수 없어 활성 강조가 없다가 hydration 후 표시되는 flash가 발생한다. 이 범위를 `SidebarNav`만으로 최소화해 CLS를 줄인다. 클라이언트 번들도 최소화된다.
+**이유**: footer는 특정 페이지 콘텐츠가 아닌 Shell 구조물. `(app)/layout.tsx` 포함이 유지보수 단일 진실원.
 
-### 7. Sidebar/Header 물리적 비중첩 배치
+### 7. Sidebar z-index 40, Header z-index 50 (기존 대비 상향)
 
-Sidebar는 `left: 0; width: var(--sidebar-width)`, Header는 `left: var(--sidebar-width); right: 0`으로 배치해 두 고정 요소가 좌우 인접만 하고 겹치지 않게 한다. z-index는 Sidebar 30, Header 40 부여.
+Stitch 원본이 `z-40`(sidebar)·`z-50`(header)을 사용한다. 기존 구현은 30/40이었다. 후속 dropdown/overlay(`1000+`) 슬라이스가 헤더를 넘어서지 않으려면 Shell 고정 레이어가 `< 100` 범위에 있어야 한다. 40/50은 이 조건을 충족한다.
 
-**이유**: Safari에서 `backdrop-filter` + `position: fixed` 조합이 stacking context를 재생성해 z-index가 뒤집힐 수 있다(R1). 물리적으로 겹치지 않으면 stacking 충돌이 발생하지 않는다. Header에 더 높은 z-index를 부여하는 이유는 미래에 추가될 Main 콘텐츠의 sticky/dropdown(1000+) 레이어가 Header를 덮지 않도록 여유 계층을 확보하기 위함이다.
+**이유**: Stitch 원본 일치 + dropdown 대역과 충돌 없는 여유 확보.
+
+### 8. --sidebar-primary 토큰 유지 (재할당)
+
+우측 4px bar 제거로 `--sidebar-primary`의 용도가 소멸됐다. shadcn sidebar 컴포넌트 네임스페이스와 겹칠 수 있으므로 토큰 선언은 유지하되 값을 `var(--sidebar-accent)`으로 재할당한다. 이 토큰을 참조하는 코드가 있어도 의도치 않은 파란색(기존 `#2563eb`)이 나타나지 않는다. 후속 다크모드 슬라이스에서 용도를 재결정한다.
+
+**이유**: 토큰 삭제 시 shadcn 내부 참조 오류 가능성 + 하위 호환 유지.
 
 ## Risks / Trade-offs
 
-- [R1 Safari backdrop-filter stacking]: `-webkit-backdrop-filter` 병기 + Sidebar/Header 물리적 비중첩으로 완화. 단, Safari 버전 업 시 재검증 필요 → fallback: `backdrop-filter` 제거 후 불투명 배경으로 degrade
-- [R2 레이아웃 상수 중복]: `--sidebar-width`/`--header-height` CSS 변수 단일화 + globals.css grep 검증으로 완화
-- [R3 SSR hydration flash on 활성 메뉴]: `SidebarNav` 클라이언트 격리 + Lighthouse CI CLS ≤ 0.02 회귀 고정으로 완화
-- [R4 워드마크 이중 렌더]: 헤더 브랜드 배치 금지 확정 + RTL/E2E 회귀 테스트로 차단
-- [R5 features/navigation 오배치]: `lib/navigation/` 확정 + 완료 기준 grep 검증으로 차단
-- [R6 redirect() 동작 변경]: Next.js 16 changelog 모니터, 필요시 proxy.ts로 이관(M7)
-- [R7 (app) 그룹명 충돌]: 중립명 유지, 로그인 슬라이스 명세도 그룹명 비의존으로 설계
-- [R8 globals.css 라이트/다크 변수 동기화 누락]: `:root`/`.dark` 인접 배치로 완화, 다크모드 슬라이스에서 양측 동시 수정 강제
+- **R1 Safari backdrop-filter + position:fixed stacking context**: Sidebar/Header 물리적 비중첩(좌우 인접) + `-webkit-backdrop-filter` 병기로 완화. fallback: `backdrop-filter` 제거 + 불투명 배경.
+- **R2 레이아웃 상수 중복**: `--sidebar-width`/`--header-height` 단일 변수 참조. hex 상수 중복 grep으로 회귀 방지.
+- **R3 prefix 매칭 false positive (/adminsettings)**: `is-menu-active` 함수 계약은 변경 없이 "다음 문자가 `/` 또는 문자열 끝" 조건 유지. 테스트에 `/adminsettings` 케이스 추가로 회귀 방지.
+- **R4 Tab 순서 깨짐**: 라이트토글 신설·프로필 링크 신설로 Tab 순서가 7단계로 변경됨. E2E SC-06 `expectedSequence` 완전일치로 회귀 방지.
+- **R5 메뉴 아이콘 크기 변경(20px → 22px)**: SidebarNav에서 터치 타겟 `≥ 44px` 유지 확인. 레이아웃 영향 없음.
+- **R6 CLS hydration**: SidebarNav `"use client"`(usePathname), SearchInput `"use client"`. 서버 렌더 시 활성 강조 없다가 hydration 후 확정. Lighthouse CLS ≤ 0.02 회귀 고정.
+- **R7 --header-glass-bg 값 변경 → .dark 블록 누락**: `.dark` 블록의 `--header-glass-bg`는 다크 시안 미정의로 기존 `rgb(19 27 46 / 0.7)` 유지. 다크모드 슬라이스에서 재결정.
+- **R8 No-Line grep 회귀**: 개편 중 실수로 border 클래스나 hex 리터럴이 진입할 수 있음. 완료 기준 grep 검증(`§11 No-Line`)으로 차단.
+- **R9 git mv + 테스트 파일 누락**: `users/` → `admins/` 이동 시 테스트 파일도 동시에 mv. 누락 시 CI 실패로 즉시 발견.
+- **R10 aria-pressed 부재로 인한 Lighthouse 접근성 점수 영향**: 검토 결과 `aria-pressed` 없는 일반 `<button>`은 접근성 위반이 아님. 오히려 noop 버튼에 `aria-pressed`를 선언하는 것이 거짓 상태 정보.
+- **R11 --sidebar-primary 재할당 후 shadcn 컴포넌트 색상 변화**: 본 슬라이스에서 shadcn sidebar 컴포넌트를 직접 사용하지 않으므로 영향 없음. 도입 시점에 재검토.
+- **R12 워드마크 폰트 Inter vs Manrope**: Stitch HTML은 `ADMIN CONSOLE`에 Inter를 사용함. 프로젝트 headlineFont=Manrope와 다르지만 Stitch strict 충실도 우선. `var(--font-sans)`(Inter)로 워드마크 렌더.

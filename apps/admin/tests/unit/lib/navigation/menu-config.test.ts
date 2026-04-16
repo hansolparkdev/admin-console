@@ -1,15 +1,26 @@
 import { describe, it, expect } from "vitest";
 import { menuItems } from "@/lib/navigation/menu-config";
+import { LayoutDashboard, ShieldCheck } from "lucide-react";
 
 describe("menuItems", () => {
-  it("exports Stitch's 5 nav entries in order", () => {
-    expect(menuItems.map((m) => m.label)).toEqual([
-      "Dashboard",
-      "Users",
-      "Analytics",
-      "Settings",
-      "Reports",
-    ]);
+  it("exports exactly 2 nav entries", () => {
+    expect(menuItems).toHaveLength(2);
+  });
+
+  it("first entry is 대시보드 → /dashboard with LayoutDashboard icon", () => {
+    expect(menuItems[0]).toMatchObject({
+      label: "대시보드",
+      href: "/dashboard",
+    });
+    expect(menuItems[0]?.icon).toBe(LayoutDashboard);
+  });
+
+  it("second entry is 관리자 관리 → /admins with ShieldCheck icon", () => {
+    expect(menuItems[1]).toMatchObject({
+      label: "관리자 관리",
+      href: "/admins",
+    });
+    expect(menuItems[1]?.icon).toBe(ShieldCheck);
   });
 
   it("each entry has label, href, icon", () => {
@@ -20,14 +31,19 @@ describe("menuItems", () => {
     }
   });
 
-  it("first entry is Dashboard → /dashboard", () => {
-    expect(menuItems[0]).toMatchObject({
-      label: "Dashboard",
-      href: "/dashboard",
-    });
+  it("does NOT contain /users href", () => {
+    expect(menuItems.map((m) => m.href)).not.toContain("/users");
   });
 
-  it("second entry is Users → /users", () => {
-    expect(menuItems[1]).toMatchObject({ label: "Users", href: "/users" });
+  it("does NOT contain /analytics href", () => {
+    expect(menuItems.map((m) => m.href)).not.toContain("/analytics");
+  });
+
+  it("does NOT contain /settings href", () => {
+    expect(menuItems.map((m) => m.href)).not.toContain("/settings");
+  });
+
+  it("does NOT contain /reports href", () => {
+    expect(menuItems.map((m) => m.href)).not.toContain("/reports");
   });
 });

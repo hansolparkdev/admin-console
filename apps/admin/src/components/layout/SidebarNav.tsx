@@ -31,7 +31,6 @@ export function SidebarNav() {
                 href={item.href}
                 aria-current={active ? "page" : undefined}
                 style={{
-                  position: "relative",
                   display: "flex",
                   alignItems: "center",
                   gap: "12px",
@@ -40,35 +39,32 @@ export function SidebarNav() {
                   paddingTop: "12px",
                   paddingBottom: "12px",
                   fontFamily: "var(--font-heading), Manrope, sans-serif",
-                  fontWeight: 500,
+                  fontWeight: active ? 600 : 500,
                   fontSize: "14px",
                   letterSpacing: "-0.01em",
                   textDecoration: "none",
-                  transition: "background-color 200ms, color 200ms",
+                  transition:
+                    "background-color 200ms, color 200ms, transform 200ms",
                   backgroundColor: active
                     ? "var(--sidebar-accent)"
                     : "transparent",
                   color: active
                     ? "var(--sidebar-accent-foreground)"
                     : "var(--sidebar-muted-foreground)",
+                  boxShadow: active ? "0 1px 2px 0 rgb(0 0 0 / 0.05)" : "none",
                 }}
-                className="focus-visible:outline-none focus-visible:ring-2 hover:bg-[var(--sidebar-muted)] hover:text-white"
+                className={[
+                  "focus-visible:outline-none focus-visible:ring-2",
+                  "hover:bg-[var(--sidebar-hover-bg)] hover:text-white",
+                  active ? "translate-x-1 rounded-xl" : "rounded-lg",
+                ].join(" ")}
               >
-                <Icon size={20} aria-hidden="true" />
+                <Icon
+                  size={22}
+                  aria-hidden="true"
+                  className="size-[22px] shrink-0"
+                />
                 <span>{item.label}</span>
-                {active ? (
-                  <span
-                    aria-hidden="true"
-                    style={{
-                      position: "absolute",
-                      top: 0,
-                      bottom: 0,
-                      right: 0,
-                      width: "4px",
-                      backgroundColor: "var(--sidebar-primary)",
-                    }}
-                  />
-                ) : null}
               </Link>
             </li>
           );

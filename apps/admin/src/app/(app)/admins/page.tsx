@@ -1,4 +1,4 @@
-export default function UsersPage() {
+export default function AdminsPage() {
   return (
     <div>
       <h1
@@ -10,10 +10,10 @@ export default function UsersPage() {
           color: "var(--on-surface)",
         }}
       >
-        Users
+        관리자 관리
       </h1>
       <p style={{ color: "var(--on-surface-variant)" }}>
-        사용자 목록은 후속 슬라이스에서 추가됩니다.
+        관리자 목록은 후속 슬라이스에서 추가됩니다.
       </p>
     </div>
   );

@@ -20,43 +20,57 @@ describe("Sidebar", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders 2-tier wordmark ('The Lens' + 'Admin Console') inside a single link to /dashboard", () => {
+  it("renders wordmark link with aria-label='ADMIN CONSOLE 홈'", () => {
     render(<Sidebar />);
     const wordmarkLink = screen.getByRole("link", {
-      name: /The Lens.*Admin Console/i,
+      name: "ADMIN CONSOLE 홈",
     });
     expect(wordmarkLink).toBeInTheDocument();
-    expect(wordmarkLink).toHaveAttribute("href", "/dashboard");
-    expect(wordmarkLink).toHaveTextContent("The Lens");
-    expect(wordmarkLink).toHaveTextContent("Admin Console");
   });
 
-  it("renders all 5 Stitch menu items", () => {
+  it("renders h2 with 'ADMIN CONSOLE' and aria-hidden='true'", () => {
     render(<Sidebar />);
-    for (const label of [
-      "Dashboard",
-      "Users",
-      "Analytics",
-      "Settings",
-      "Reports",
-    ]) {
-      expect(screen.getByText(label)).toBeInTheDocument();
-    }
+    const h2 = screen.getByText("ADMIN CONSOLE");
+    expect(h2.tagName.toLowerCase()).toBe("h2");
+    expect(h2).toHaveAttribute("aria-hidden", "true");
   });
 
-  it("renders 'Admin User' footer name", () => {
+  it("renders p with 'Admin Console System' and aria-hidden='true'", () => {
     render(<Sidebar />);
-    expect(screen.getByText("Admin User")).toBeInTheDocument();
+    const p = screen.getByText("Admin Console System");
+    expect(p.tagName.toLowerCase()).toBe("p");
+    expect(p).toHaveAttribute("aria-hidden", "true");
   });
 
-  it("renders 'Administrator' footer role", () => {
+  it("does NOT render 'The Lens' text", () => {
     render(<Sidebar />);
-    expect(screen.getByText("Administrator")).toBeInTheDocument();
+    expect(screen.queryByText("The Lens")).not.toBeInTheDocument();
+  });
+
+  it("renders exactly 2 menu items (대시보드, 관리자 관리)", () => {
+    render(<Sidebar />);
+    expect(screen.getByText("대시보드")).toBeInTheDocument();
+    expect(screen.getByText("관리자 관리")).toBeInTheDocument();
+  });
+
+  it("does NOT render old menu items (Users, Analytics, Settings, Reports)", () => {
+    render(<Sidebar />);
+    expect(screen.queryByText("Users")).not.toBeInTheDocument();
+    expect(screen.queryByText("Analytics")).not.toBeInTheDocument();
+    expect(screen.queryByText("Settings")).not.toBeInTheDocument();
+    expect(screen.queryByText("Reports")).not.toBeInTheDocument();
   });
 
   it("applies dark sidebar background via var(--sidebar)", () => {
     render(<Sidebar />);
     const aside = screen.getByRole("complementary");
     expect(aside.getAttribute("style") ?? "").toContain("var(--sidebar)");
+  });
+
+  it("sidebar z-index is 40", () => {
+    render(<Sidebar />);
+    const aside = screen.getByRole("complementary");
+    const style = aside.getAttribute("style") ?? "";
+    expect(style).toContain("z-index: 40");
   });
 });

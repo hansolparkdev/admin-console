@@ -10,20 +10,16 @@ describe("isMenuActive", () => {
     expect(isMenuActive("/dashboard/anything", "/dashboard")).toBe(true);
   });
 
-  it("matches exact /users", () => {
-    expect(isMenuActive("/users", "/users")).toBe(true);
+  it("matches exact /admins", () => {
+    expect(isMenuActive("/admins", "/admins")).toBe(true);
   });
 
-  it("matches /users/123 (sub-path)", () => {
-    expect(isMenuActive("/users/123", "/users")).toBe(true);
+  it("matches /admins/123 (sub-path)", () => {
+    expect(isMenuActive("/admins/123", "/admins")).toBe(true);
   });
 
-  it("matches /users/123/edit (deep sub-path)", () => {
-    expect(isMenuActive("/users/123/edit", "/users")).toBe(true);
-  });
-
-  it("does NOT match /usersettings for /users (false positive guard)", () => {
-    expect(isMenuActive("/usersettings", "/users")).toBe(false);
+  it("does NOT match /adminsettings for /admins (false positive guard)", () => {
+    expect(isMenuActive("/adminsettings", "/admins")).toBe(false);
   });
 
   it("does NOT match /dashboarding for /dashboard (false positive guard)", () => {

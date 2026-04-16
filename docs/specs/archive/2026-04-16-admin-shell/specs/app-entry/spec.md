@@ -1,94 +1,112 @@
-## ADDED Requirements
+---
+capability: app-entry
+delta_kind: MODIFIED
+from_archive: 2026-04-16-admin-shell/app-entry/spec.md
+---
 
-### Requirement: 루트 리다이렉트
+# app-entry — admin-shell 개편 델타
 
-`app/page.tsx`에서 `redirect("/dashboard")`를 호출해 루트 경로 진입 시 즉시 `/dashboard`로 서버 리다이렉트.
+## 개편 요약
 
-#### Scenario: 루트 경로 진입 시 /dashboard로 리다이렉트
+도메인 확정("관리자 계정 관리")에 따라 `/users` 라우트를 `/admins`로 리네임한다. `app/page.tsx`의 루트 redirect, `(app)` 라우트 그룹 구조, auth() hook point 주석, dashboard placeholder는 변경 없다.
 
-- **Given** 사용자가 브라우저에서 `/` URL로 접근한다
-- **When** 서버가 요청을 처리한다
-- **Then** 브라우저 URL이 `/dashboard`로 변경된다
-- **And** HTTP 307 상태로 리다이렉트된다
+---
 
-#### Scenario: redirect() 호출 단위 테스트
+## MODIFIED Requirement — users placeholder 페이지 → admins placeholder 페이지
 
-- **Given** `next/navigation`의 `redirect`가 모킹되었다
-- **When** root `page.tsx` 컴포넌트가 렌더된다
-- **Then** `redirect("/dashboard")`가 정확히 1회 호출된다
+### 기존 (docs/specs/main/app-entry/spec.md)
 
-### Requirement: (app) 라우트 그룹 구조
+> `(app)/users/page.tsx`에 Headline-SM 타이틀 "Users"와 후속 슬라이스 안내 문구를 렌더.
 
-`app/(app)/` 라우트 그룹 신설. `layout.tsx`에 Shell(Sidebar + Header + Main) 조합. 그룹명은 세션 보안 의미 없는 중립명 `(app)` 사용.
-
-#### Scenario: (app) 그룹 내 모든 페이지가 Shell을 공유
-
-- **Given** `(app)/layout.tsx`에 Shell이 렌더된다
-- **When** `/dashboard` 또는 `/users`로 접근한다
-- **Then** 두 경로 모두 동일한 사이드바·헤더가 표시된다
-- **And** 사이드바와 헤더는 라우트 이동 시 재렌더되지 않는다
-
-#### Scenario: 알 수 없는 경로는 Shell 미렌더
-
-- **Given** 사용자가 `/unknown` URL로 접근한다
-- **When** 페이지가 렌더된다
-- **Then** Next.js 기본 404 페이지가 표시된다
-- **And** 사이드바·헤더·메인 Shell 영역이 렌더되지 않는다
-
-### Requirement: auth() hook point
-
-`(app)/layout.tsx` 상단에 `TODO(google-oidc-login)` 주석으로 auth() 가드 삽입 위치를 명시. 본 슬라이스에는 실제 가드 없음.
-
-#### Scenario: hook point 주석 존재
-
-- **Given** `apps/admin/src/app/(app)/layout.tsx` 파일을 읽는다
-- **When** 파일 상단 주석을 탐색한다
-- **Then** `TODO(google-oidc-login)` 문자열이 존재한다
-- **And** `auth()` 가드 적용 방법이 주석으로 명시되어 있다
-
-#### Scenario: 미래 auth() 가드 통합 지점 (로그인 슬라이스 담당)
-
-- **Given** 로그인 슬라이스가 병합된 이후 (본 슬라이스 범위 외)
-- **When** `(app)/layout.tsx` hook point에 `auth()` 가드가 추가된다
-- **Then** 미로그인 사용자가 `/dashboard` 접근 시 `/login?callbackUrl=...`로 리다이렉트된다
-- **And** 기존 Shell 구조 변경 없이 한 줄 추가로 가드가 동작한다
-
-### Requirement: dashboard placeholder 페이지
-
-`(app)/dashboard/page.tsx`에 Headline-SM 타이틀 "Dashboard"와 후속 슬라이스 안내 문구를 렌더.
-
-#### Scenario: dashboard 페이지 타이틀 렌더
-
-- **Given** 사용자가 `/dashboard`에 접근한다
-- **When** 메인 영역이 렌더된다
-- **Then** "Dashboard" 텍스트가 Headline 수준 요소로 존재한다
-- **And** 후속 슬라이스 안내 문구가 표시된다
-
-### Requirement: users placeholder 페이지
-
-`(app)/users/page.tsx`에 Headline-SM 타이틀 "Users"와 후속 슬라이스 안내 문구를 렌더.
-
-#### Scenario: users 페이지 타이틀 렌더
+#### 기존 Scenario: users 페이지 타이틀 렌더
 
 - **Given** 사용자가 `/users`에 접근한다
 - **When** 메인 영역이 렌더된다
 - **Then** "Users" 텍스트가 Headline 수준 요소로 존재한다
 - **And** 후속 슬라이스 안내 문구가 표시된다
 
-### Requirement: 성능·접근성 기준
+### 변경
 
-Lighthouse 성능 ≥ 90, 접근성 ≥ 95, CLS ≤ 0.02. 1280×800 viewport에서 가로 스크롤 없음.
+`(app)/users/page.tsx`를 `git mv`로 `(app)/admins/page.tsx`로 이동. 파일 내부 타이틀·안내 문구를 한국어로 교체.
 
-#### Scenario: Lighthouse 기준 충족
+### 수용 기준 (AC)
 
-- **Given** `/dashboard`가 1280×800 viewport에서 렌더된다
-- **When** Lighthouse CI를 실행한다
-- **Then** 성능 점수가 90 이상이다
-- **And** 접근성 점수가 95 이상이다
-- **And** CLS가 0.02 이하이다
+- `apps/admin/src/app/(app)/users/` 디렉터리가 존재하지 않는다
+- `apps/admin/src/app/(app)/admins/page.tsx`가 존재한다
+- `/admins` 접근 시 메인 영역에 `<h1>관리자 관리</h1>`가 렌더된다
+- 안내 문구 "관리자 목록은 후속 슬라이스에서 추가됩니다."가 표시된다
+- `<h1>` 내부 또는 페이지 어디에도 "Users" 텍스트가 존재하지 않는다
 
-#### Scenario: 가로 스크롤 없음
+#### Scenario: admins 페이지 타이틀 렌더 (한국어)
 
-- **Given** 1280×800 viewport에서 `/dashboard`가 렌더된다
-- **When** `document.documentElement.scrollWidth`를 확인한다
-- **Then** 값이 1280 이하이다
+- **Given** 사용자가 `/admins`에 접근한다
+- **When** 메인 영역이 렌더된다
+- **Then** "관리자 관리" 텍스트가 `<h1>` 요소로 존재한다
+- **And** "관리자 목록은 후속 슬라이스에서 추가됩니다." 안내 문구가 표시된다
+- **And** "Users" 텍스트가 어디에도 존재하지 않는다
+
+#### Scenario: admins 페이지 default export
+
+- **Given** `apps/admin/src/app/(app)/admins/page.tsx` 파일을 읽는다
+- **When** export 방식을 확인한다
+- **Then** default export 함수가 존재한다 (Next.js page 규약)
+
+---
+
+## MODIFIED Requirement — (app) 라우트 그룹 구조 (Shell 공유 대상 갱신)
+
+### 기존 (docs/specs/main/app-entry/spec.md)
+
+> #### Scenario: (app) 그룹 내 모든 페이지가 Shell을 공유
+> - **When** `/dashboard` 또는 `/users`로 접근한다
+> - **Then** 두 경로 모두 동일한 사이드바·헤더가 표시된다
+
+### 변경
+
+Shell 공유 대상 라우트가 `/users` → `/admins`로 변경.
+
+### 수용 기준 (AC)
+
+#### Scenario: (app) 그룹 내 모든 페이지가 Shell을 공유 (갱신)
+
+- **Given** `(app)/layout.tsx`에 Shell이 렌더된다
+- **When** `/dashboard` 또는 `/admins`로 접근한다
+- **Then** 두 경로 모두 동일한 사이드바·헤더·푸터가 표시된다
+- **And** 사이드바와 헤더는 라우트 이동 시 재렌더되지 않는다
+
+---
+
+## MODIFIED Requirement — 테스트 경로 (파일 위치 갱신)
+
+### 기존
+
+`apps/admin/tests/unit/app/(app)/users/page.test.tsx`
+
+### 변경
+
+`git mv`로 `apps/admin/tests/unit/app/(app)/admins/page.test.tsx`로 이동. assertion 교체.
+
+### 수용 기준 (AC)
+
+- `tests/unit/app/(app)/users/page.test.tsx` 파일이 존재하지 않는다
+- `tests/unit/app/(app)/admins/page.test.tsx`가 존재한다
+- 테스트가 `<h1>관리자 관리</h1>` 렌더를 단언한다
+- 테스트가 "Users" 텍스트 부재를 단언한다
+
+#### Scenario: 테스트 파일 위치 확인
+
+- **Given** `apps/admin/tests/unit/app/(app)/` 디렉터리를 탐색한다
+- **When** `users/` 및 `admins/` 하위 디렉터리를 확인한다
+- **Then** `users/` 디렉터리가 존재하지 않는다
+- **And** `admins/page.test.tsx`가 존재한다
+
+---
+
+## 변경 없음 (기존 Requirement 유지)
+
+다음 Requirement는 본 개편에서 변경 없이 유지된다:
+
+- **루트 리다이렉트**: `app/page.tsx`의 `redirect("/dashboard")` 그대로
+- **auth() hook point**: `(app)/layout.tsx` 상단 `TODO(google-oidc-login)` 주석 유지
+- **dashboard placeholder 페이지**: `(app)/dashboard/page.tsx` 변경 없음
+- **성능·접근성 기준**: Lighthouse 성능 ≥ 90, 접근성 ≥ 95, CLS ≤ 0.02 동일

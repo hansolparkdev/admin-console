@@ -1,3 +1,5 @@
+// TODO(google-oidc-login): 세션 프로필로 교체
+
 export function SidebarUserFooter() {
   return (
     <div style={{ marginTop: "auto", padding: "16px" }}>
@@ -11,25 +13,20 @@ export function SidebarUserFooter() {
           backgroundColor: "var(--sidebar-footer-bg)",
         }}
       >
-        {/* Avatar circle (placeholder — 로그인 슬라이스 병합 시 실제 사진으로 교체) */}
+        {/* Avatar circle placeholder — <img> 없음, google-oidc-login 슬라이스에서 교체 */}
         <div
+          aria-hidden="true"
           style={{
             width: "40px",
             height: "40px",
             flexShrink: 0,
             borderRadius: "50%",
-            backgroundColor: "var(--sidebar-muted)",
-            color: "var(--sidebar-foreground)",
+            backgroundColor: "var(--sidebar-avatar-bg)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            fontSize: "14px",
-            fontWeight: 600,
           }}
-          aria-hidden="true"
-        >
-          A
-        </div>
+        />
 
         {/* Name and role */}
         <div
@@ -41,7 +38,20 @@ export function SidebarUserFooter() {
           }}
         >
           <span
-            data-testid="user-name"
+            style={{
+              fontSize: "10px",
+              fontWeight: 600,
+              color: "var(--primary-fixed)",
+              textTransform: "uppercase",
+              letterSpacing: "0.1em",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
+            최고 관리자
+          </span>
+          <span
             style={{
               fontSize: "14px",
               fontWeight: 600,
@@ -51,19 +61,19 @@ export function SidebarUserFooter() {
               textOverflow: "ellipsis",
             }}
           >
-            Admin User
+            Admin_User
           </span>
           <span
-            data-testid="user-role"
+            data-testid="user-email"
             style={{
-              fontSize: "12px",
-              color: "var(--sidebar-subtle)",
+              fontSize: "10px",
+              color: "var(--sidebar-muted-foreground)",
               whiteSpace: "nowrap",
               overflow: "hidden",
               textOverflow: "ellipsis",
             }}
           >
-            Administrator
+            super-admin@system.com
           </span>
         </div>
       </div>

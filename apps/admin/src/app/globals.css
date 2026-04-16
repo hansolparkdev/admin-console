@@ -103,15 +103,17 @@
 
   /*
    * Sidebar: Stitch Admin Console Layout 스크린 원본 매치.
-   * bg-slate-900 (#0f172a) base, text-slate-400 비활성, text-slate-500 sub,
-   * 활성은 bg-blue-600/10 + text-blue-400 + 우측 4px blue-600 bar.
+   * bg-slate-800 (#1e293b) base, text-slate-400 비활성,
+   * 활성은 translate-x-1 + rounded-xl + bg-white/10.
    */
-  --sidebar: #0f172a; /* slate-900 */
+  --sidebar: #1e293b; /* slate-800 */
   --sidebar-foreground: #ffffff; /* 워드마크·사용자 이름 */
-  --sidebar-primary: #2563eb; /* blue-600 — 활성 오른쪽 bar */
+  --sidebar-primary: var(
+    --sidebar-accent
+  ); /* 우측 bar 제거로 용처 소멸 — shadcn 호환 유지 */
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: rgba(37, 99, 235, 0.1); /* blue-600/10 — 활성 배경 */
-  --sidebar-accent-foreground: #60a5fa; /* blue-400 — 활성 텍스트/아이콘 */
+  --sidebar-accent: rgba(255, 255, 255, 0.1); /* white/10 — 활성 배경 */
+  --sidebar-accent-foreground: #ffffff; /* 활성 텍스트/아이콘 */
   --sidebar-border: rgba(255, 255, 255, 0.08);
   --sidebar-ring: #2563eb;
   --sidebar-muted: #1e293b; /* slate-800 — hover 배경 */
@@ -121,8 +123,10 @@
     30,
     41,
     59,
-    0.5
-  ); /* slate-800/50 — 푸터 카드 배경 */
+    0.4
+  ); /* slate-800/40 — 푸터 카드 배경 */
+  --sidebar-hover-bg: rgba(51, 65, 85, 0.5); /* hover 메뉴 배경 */
+  --sidebar-avatar-bg: #334155; /* slate-700 — 아바타 placeholder 배경 */
 
   /* Layout 치수 */
   --sidebar-width: 16rem;
@@ -142,19 +146,31 @@
   --on-secondary-container: #455367;
 
   /* 헤더 글래스 배경 */
-  --header-glass-bg: rgb(255 255 255 / 0.8);
+  --header-glass-bg: rgb(248 250 252 / 0.8);
+  --header-button-hover-bg: rgba(
+    226,
+    232,
+    240,
+    0.5
+  ); /* slate-200/50 — 헤더 버튼 hover */
 
   /*
    * Stitch Admin Shell 보조 토큰 (layout 전용).
    * Stitch 원본이 Tailwind 기본 slate 팔레트를 직접 쓴 구간 — 컴포넌트가 hex 리터럴을
    * 직접 찍지 않도록 변수로 중앙화.
    */
-  --search-input-bg: #f8fafc; /* bg-slate-50 */
+  --search-input-bg: #f0f4f7; /* muted — 검색 입력 배경 */
   --search-input-icon: #94a3b8; /* slate-400 */
   --search-input-ring: rgb(37 99 235 / 0.2); /* blue-500/20 */
   --header-divider: #e2e8f0; /* slate-200 */
   --header-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --notification-dot-ring: #ffffff; /* white ring around primary dot */
+  --footer-muted-foreground: rgba(
+    86,
+    97,
+    102,
+    0.6
+  ); /* on_surface_variant/60 — 푸터 텍스트 */
 }
 
 /*

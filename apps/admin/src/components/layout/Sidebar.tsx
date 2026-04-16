@@ -12,15 +12,16 @@ export function Sidebar() {
         width: "var(--sidebar-width)",
         height: "100vh",
         backgroundColor: "var(--sidebar)",
-        zIndex: 30,
+        zIndex: 40,
         display: "flex",
         flexDirection: "column",
         overflowY: "auto",
       }}
     >
-      {/* Wordmark block — Stitch: THE LENS + Admin Console sub */}
+      {/* Wordmark block — ADMIN CONSOLE */}
       <Link
         href="/dashboard"
+        aria-label="ADMIN CONSOLE 홈"
         style={{
           display: "block",
           paddingLeft: "32px",
@@ -31,20 +32,22 @@ export function Sidebar() {
         }}
         className="focus-visible:outline-none focus-visible:ring-2"
       >
-        <span
+        <h2
+          aria-hidden="true"
           style={{
-            display: "block",
             fontFamily: "var(--font-heading), Manrope, sans-serif",
             fontWeight: 700,
             fontSize: "20px",
             letterSpacing: "0.18em",
             textTransform: "uppercase",
             color: "var(--sidebar-foreground)",
+            margin: 0,
           }}
         >
-          The Lens
-        </span>
-        <span
+          ADMIN CONSOLE
+        </h2>
+        <p
+          aria-hidden="true"
           style={{
             display: "block",
             marginTop: "4px",
@@ -53,10 +56,11 @@ export function Sidebar() {
             fontSize: "12px",
             letterSpacing: "0.1em",
             color: "var(--sidebar-subtle)",
+            margin: 0,
           }}
         >
-          Admin Console
-        </span>
+          Admin Console System
+        </p>
       </Link>
 
       {/* Navigation menu — grows to fill space */}

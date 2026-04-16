@@ -1,4 +1,9 @@
-import { Bell, HelpCircle } from "lucide-react";
+"use client";
+
+// TODO(google-oidc-login): 세션 기반 사용자 정보로 교체
+
+import Link from "next/link";
+import { Bell, Sun } from "lucide-react";
 import { SearchInput } from "@/components/layout/SearchInput";
 
 export function Header() {
@@ -11,7 +16,7 @@ export function Header() {
         left: "var(--sidebar-width)",
         right: 0,
         height: "var(--header-height)",
-        zIndex: 40,
+        zIndex: 50,
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
@@ -28,8 +33,30 @@ export function Header() {
         <SearchInput />
       </div>
 
-      {/* Right: actions + brand badge */}
-      <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+      {/* Right: actions */}
+      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+        {/* Theme toggle — noop, ARIA 1.2: aria-pressed 없음 */}
+        <button
+          type="button"
+          aria-label="테마 전환"
+          onClick={() => {}}
+          style={{
+            width: "40px",
+            height: "40px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: "50%",
+            color: "var(--on-surface-variant)",
+            backgroundColor: "transparent",
+            cursor: "pointer",
+          }}
+          className="hover:bg-[var(--header-button-hover-bg)] focus-visible:outline-none focus-visible:ring-2"
+        >
+          <Sun size={20} aria-hidden="true" />
+        </button>
+
+        {/* Notification */}
         <button
           type="button"
           aria-label="알림"
@@ -45,42 +72,23 @@ export function Header() {
             backgroundColor: "transparent",
             cursor: "pointer",
           }}
-          className="hover:text-[var(--primary)] focus-visible:outline-none focus-visible:ring-2"
+          className="hover:bg-[var(--header-button-hover-bg)] focus-visible:outline-none focus-visible:ring-2"
         >
           <Bell size={20} aria-hidden="true" />
-          {/* Unread dot — Stitch: red dot ring-2 with white ring */}
+          {/* Unread dot */}
           <span
             aria-hidden="true"
             style={{
               position: "absolute",
-              top: "10px",
-              right: "10px",
+              top: "8px",
+              right: "8px",
               width: "8px",
               height: "8px",
               borderRadius: "50%",
-              backgroundColor: "var(--primary)",
+              backgroundColor: "var(--destructive)",
               boxShadow: "0 0 0 2px var(--notification-dot-ring)",
             }}
           />
-        </button>
-
-        <button
-          type="button"
-          aria-label="도움말"
-          style={{
-            width: "40px",
-            height: "40px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            borderRadius: "50%",
-            color: "var(--on-surface-variant)",
-            backgroundColor: "transparent",
-            cursor: "pointer",
-          }}
-          className="hover:text-[var(--primary)] focus-visible:outline-none focus-visible:ring-2"
-        >
-          <HelpCircle size={20} aria-hidden="true" />
         </button>
 
         {/* Vertical divider */}
@@ -95,18 +103,40 @@ export function Header() {
           }}
         />
 
-        {/* Brand badge — Stitch: "The Executive Lens" Manrope bold */}
-        <span
+        {/* Profile link */}
+        <Link
+          href="/admins"
+          aria-label="프로필"
           style={{
-            fontFamily: "var(--font-heading), Manrope, sans-serif",
-            fontWeight: 700,
-            fontSize: "14px",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            textDecoration: "none",
             color: "var(--on-surface)",
-            letterSpacing: "-0.01em",
           }}
+          className="focus-visible:outline-none focus-visible:ring-2 rounded-full"
         >
-          The Executive Lens
-        </span>
+          {/* Avatar circle placeholder */}
+          <div
+            aria-hidden="true"
+            style={{
+              width: "32px",
+              height: "32px",
+              borderRadius: "50%",
+              backgroundColor: "var(--sidebar-avatar-bg)",
+              flexShrink: 0,
+            }}
+          />
+          <span
+            style={{
+              fontSize: "14px",
+              fontWeight: 500,
+              color: "var(--on-surface)",
+            }}
+          >
+            Admin_User
+          </span>
+        </Link>
       </div>
     </header>
   );

@@ -1,10 +1,4 @@
-import {
-  LayoutDashboard,
-  Users,
-  LineChart,
-  Settings,
-  FileText,
-} from "lucide-react";
+import { LayoutDashboard, ShieldCheck } from "lucide-react";
 import type { ComponentType } from "react";
 
 export interface MenuItem {
@@ -14,9 +8,6 @@ export interface MenuItem {
 }
 
 export const menuItems: MenuItem[] = [
-  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { label: "Users", href: "/users", icon: Users },
-  { label: "Analytics", href: "/analytics", icon: LineChart },
-  { label: "Settings", href: "/settings", icon: Settings },
-  { label: "Reports", href: "/reports", icon: FileText },
+  { label: "대시보드", href: "/dashboard", icon: LayoutDashboard },
+  { label: "관리자 관리", href: "/admins", icon: ShieldCheck },
 ];

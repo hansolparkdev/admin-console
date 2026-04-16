@@ -10,7 +10,7 @@ export function SearchInput() {
     <div
       style={{
         position: "relative",
-        width: "384px",
+        width: "320px",
         display: "flex",
         alignItems: "center",
       }}
@@ -29,7 +29,7 @@ export function SearchInput() {
       />
       <input
         type="text"
-        placeholder="Search data points, users, or logs..."
+        placeholder="시스템 기능 검색..."
         value={value}
         onChange={(e) => setValue(e.target.value)}
         style={{
