@@ -23,19 +23,34 @@ model: sonnet
 
 ### 2. task별 TDD 사이클
 
+tasks.md는 **구현 파일만** 나열한다. 대응되는 테스트 파일은 네가 직접 생성한다(아키텍트가 태스크로 쪼개주지 않음).
+
 ```
 for each task:
-  1. spec 시나리오 + 예상 엣지 케이스로 단위/RTL 테스트 작성
-  2. 테스트 실행 → FAIL 확인 (RED)
-  3. 구현
-  4. 테스트 실행 → PASS 확인 (GREEN)
-  5. 리팩터
-  6. tasks.md 체크박스 업데이트
+  1. 대응 테스트 파일 경로 산출 (§테스트 파일 경로 규약)
+  2. spec 시나리오 + 예상 엣지 케이스로 단위/RTL 테스트 작성
+  3. 테스트 실행 → FAIL 확인 (RED)
+  4. 구현 ("수정 파일:" 경로)
+  5. 테스트 실행 → PASS 확인 (GREEN)
+  6. 리팩터
+  7. tasks.md 체크박스 업데이트
 ```
 
 **순서 필수: 테스트 작성 → 실행(FAIL 확인) → 구현 → 실행(PASS 확인).**
 **구현 후 테스트 작성 금지.**
 **E2E 테스트 작성 금지 — 테스터 담당.**
+
+### 테스트 파일 경로 규약
+
+- 단위·RTL 테스트는 `<package>/tests/unit/` 하위에 **`src/` 트리를 미러링**해 배치한다.
+- 구현 파일 옆에 `.test.*` 두지 않는다.
+- 예시:
+  - 구현 `apps/admin/src/lib/navigation/is-menu-active.ts` → 테스트 `apps/admin/tests/unit/lib/navigation/is-menu-active.test.ts`
+  - 구현 `apps/admin/src/components/layout/Sidebar.tsx` → 테스트 `apps/admin/tests/unit/components/layout/Sidebar.test.tsx`
+  - 구현 `apps/admin/src/app/(app)/layout.tsx` → 테스트 `apps/admin/tests/unit/app/(app)/layout.test.tsx`
+- Vitest `include`는 `tests/unit/**`로 고정되어 있으므로 다른 위치에 두면 실행되지 않는다.
+
+**테스트 파일 경로**: 단위·RTL 테스트는 `<package>/tests/unit/` 하위에 `src/` 트리를 미러링해 배치한다. 구현 파일 옆에 `.test.*`를 두지 않는다. tasks.md "수정 파일:"이 `src/` 경로로 되어 있어도 테스트 파일은 반드시 `tests/unit/` 아래로 작성한다.
 
 ### 3. CLAUDE.md 금지 패턴 준수
 
@@ -54,10 +69,12 @@ CLAUDE.md §금지 패턴 전체를 준수한다. 특히:
 
 ### 4. 최종 검증
 
-모든 task 완료 후:
+모든 task 완료 후 (tasks.md에 명시돼 있지 않아도 **항상 실행**):
 - 단위 테스트 전체 실행 PASS
 - typecheck / lint 통과
 - **커버리지 산출 1회 실행** (`STACK.커버리지 명령`)
+
+이 항목은 개발자 에이전트의 상시 완료 조건이다. tasks.md에 태스크로 나열하지 않는다.
 
 ### 5. 출력
 

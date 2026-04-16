@@ -112,6 +112,14 @@ packages/
 | shadcn `components/ui/*` | **kebab-case** (shadcn CLI 기본값, 예외) | `dropdown-menu.tsx`, `alert-dialog.tsx` |
 | Next.js 라우팅 파일 | Next.js 규약 (`page.tsx`, `layout.tsx`, `route.ts`, `proxy.ts` 등) 소문자 고정 | `page.tsx`, `proxy.ts` |
 
+### 테스트 파일 위치
+
+- **단위·RTL 테스트는 `src/` 밖 `tests/unit/`에 둔다**. `src/`에는 프로덕션 코드만.
+- `tests/unit/` 내부는 `src/` 트리를 그대로 미러링. 예: `src/components/layout/Sidebar.tsx` → `tests/unit/components/layout/Sidebar.test.tsx`.
+- `app/**` 라우팅 파일의 테스트도 `tests/unit/app/**`로 분리. `app/` 하위에는 라우팅 파일 외 아무것도 두지 않는다.
+- E2E는 루트 `e2e/`에 별도로 (기존 유지).
+- Vitest는 `tests/unit/**/*.{test,spec}.{ts,tsx}`만 수집(`vitest.config.ts` `test.include`).
+
 ### Export 방식
 
 | 파일 유형 | export |

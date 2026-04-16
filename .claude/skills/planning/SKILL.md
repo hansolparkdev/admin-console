@@ -18,6 +18,32 @@ description: 기획 에이전트 + 비평 에이전트로 plan.md 작성. 사용
 
 **CLAUDE.md가 없으면** → `/init` 먼저 실행하라고 유저에게 안내 후 중단.
 
+## Step 2.5: 디자인 참조 확인 (frontend/fullstack/monorepo만)
+
+유저에게 한 번에 묻는다:
+
+```
+참조 디자인이 있나요? 있으면 둘 다 답해주세요.
+
+1) 소스 (택1 또는 조합):
+   - stitch:projects/<id>
+   - figma:<url>
+   - docs/design/{feature}/ 같은 로컬 경로
+   - 스크린샷 첨부
+   - none (없음)
+
+2) 충실도 (택1):
+   - strict  — 원본대로 그대로 맞춤 (원본 우선)
+   - guide   — 톤·구조만 참고, 충돌 시 프로젝트 원칙 우선
+   - loose   — 느슨한 참고용
+   - none    — 참조 없음
+```
+
+답을 받을 때까지 Step 3로 진행하지 않는다.
+
+- `DESIGN_REF` = 사용자가 준 소스 값 (없으면 `none`)
+- `DESIGN_FIDELITY` = 사용자가 준 충실도 (없거나 `DESIGN_REF = none`이면 `none`)
+
 ## Step 3: 기획 초안 (planner 호출)
 
 전달 변수:
@@ -25,6 +51,8 @@ description: 기획 에이전트 + 비평 에이전트로 plan.md 작성. 사용
 - `REQUIREMENT`: `$ARGUMENTS` 원문
 - `STRUCTURE`: 위에서 추출
 - `PACKAGES`: 모노레포만
+- `DESIGN_REF`: Step 2.5에서 확정
+- `DESIGN_FIDELITY`: Step 2.5에서 확정
 
 ## Step 4: 비평 루프 (최대 3회)
 
