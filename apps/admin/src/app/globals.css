@@ -101,15 +101,32 @@
   /* Radius: ROUND_FOUR 기준 (buttons/inputs = md 6px, cards = lg 8px) */
   --radius: 0.5rem; /* 8px = lg */
 
-  /* Sidebar: surface_dim (anchor) + on_surface */
-  --sidebar: #cfdce3;
-  --sidebar-foreground: #2a3439;
-  --sidebar-primary: #0053db;
-  --sidebar-primary-foreground: #f8f7ff;
-  --sidebar-accent: #c7d3ff; /* primary_fixed_dim (selected soft glow) */
-  --sidebar-accent-foreground: #0048bf;
-  --sidebar-border: #a9b4b9;
-  --sidebar-ring: #0053db;
+  /*
+   * Sidebar: Stitch Admin Console Layout 스크린 원본 매치.
+   * bg-slate-900 (#0f172a) base, text-slate-400 비활성, text-slate-500 sub,
+   * 활성은 bg-blue-600/10 + text-blue-400 + 우측 4px blue-600 bar.
+   */
+  --sidebar: #0f172a; /* slate-900 */
+  --sidebar-foreground: #ffffff; /* 워드마크·사용자 이름 */
+  --sidebar-primary: #2563eb; /* blue-600 — 활성 오른쪽 bar */
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: rgba(37, 99, 235, 0.1); /* blue-600/10 — 활성 배경 */
+  --sidebar-accent-foreground: #60a5fa; /* blue-400 — 활성 텍스트/아이콘 */
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-ring: #2563eb;
+  --sidebar-muted: #1e293b; /* slate-800 — hover 배경 */
+  --sidebar-muted-foreground: #94a3b8; /* slate-400 — 비활성 메뉴 */
+  --sidebar-subtle: #64748b; /* slate-500 — 사이드바 sub 텍스트 */
+  --sidebar-footer-bg: rgba(
+    30,
+    41,
+    59,
+    0.5
+  ); /* slate-800/50 — 푸터 카드 배경 */
+
+  /* Layout 치수 */
+  --sidebar-width: 16rem;
+  --header-height: 4rem;
 
   /* Executive Lens 확장 토큰 (직접 참조용) */
   --surface-container: #e8eff3;
@@ -123,6 +140,21 @@
   --primary-dim: #0048c1;
   --secondary-container: #d5e3fc;
   --on-secondary-container: #455367;
+
+  /* 헤더 글래스 배경 */
+  --header-glass-bg: rgb(255 255 255 / 0.8);
+
+  /*
+   * Stitch Admin Shell 보조 토큰 (layout 전용).
+   * Stitch 원본이 Tailwind 기본 slate 팔레트를 직접 쓴 구간 — 컴포넌트가 hex 리터럴을
+   * 직접 찍지 않도록 변수로 중앙화.
+   */
+  --search-input-bg: #f8fafc; /* bg-slate-50 */
+  --search-input-icon: #94a3b8; /* slate-400 */
+  --search-input-ring: rgb(37 99 235 / 0.2); /* blue-500/20 */
+  --header-divider: #e2e8f0; /* slate-200 */
+  --header-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --notification-dot-ring: #ffffff; /* white ring around primary dot */
 }
 
 /*
@@ -185,6 +217,9 @@
   --primary-dim: #4a6fe5;
   --secondary-container: #3e495d;
   --on-secondary-container: #bcc7de;
+
+  /* 헤더 글래스 배경 (다크) */
+  --header-glass-bg: rgb(19 27 46 / 0.7);
 }
 
 @layer base {
