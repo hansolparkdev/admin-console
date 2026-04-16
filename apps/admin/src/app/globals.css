@@ -48,73 +48,143 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/*
+ * Stitch "The Executive Lens" 토큰 (Light mode).
+ * 출처: Google Stitch projects/4047049138455434101 — Admin Console Layout.
+ * shadcn 토큰명(왼쪽)과 Stitch Material 토큰(오른쪽)을 의미적으로 매핑.
+ * 값은 Stitch의 HEX를 그대로 사용 (OKLCH 변환 없음 — 추후 팀 합의 시 전환).
+ */
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  /* Surface 계층 */
+  --background: #f7f9fb; /* surface */
+  --foreground: #2a3439; /* on_surface (순수 검정 금지) */
+
+  /* Card: surface_container_lowest (가장 앞으로 lift된 패널) */
+  --card: #ffffff;
+  --card-foreground: #2a3439;
+
+  /* Popover / 플로팅: surface_container_lowest + ambient shadow */
+  --popover: #ffffff;
+  --popover-foreground: #2a3439;
+
+  /* Primary: Blue (Executive Lens) */
+  --primary: #0053db;
+  --primary-foreground: #f8f7ff;
+
+  /* Secondary: 보조 액션 — surface_container_highest */
+  --secondary: #d9e4ea;
+  --secondary-foreground: #2a3439;
+
+  /* Muted: 보조 섹션 — surface_container_low */
+  --muted: #f0f4f7;
+  --muted-foreground: #566166; /* on_surface_variant */
+
+  /* Accent: hover·선택 상태 — primary_container (부드러운 블루) */
+  --accent: #dbe1ff;
+  --accent-foreground: #0048bf; /* on_primary_container */
+
+  /* Destructive */
+  --destructive: #9f403d;
+
+  /* Border: Ghost Border 느낌 — outline_variant */
+  --border: #a9b4b9;
+  --input: #d9e4ea; /* surface_container_highest (Milled Inset) */
+  --ring: #0053db; /* focus ring = primary */
+
+  /* Chart 팔레트: Executive Lens 톤 */
+  --chart-1: #0053db;
+  --chart-2: #526074; /* secondary */
+  --chart-3: #605c78; /* tertiary */
+  --chart-4: #717c82; /* outline */
+  --chart-5: #566166; /* on_surface_variant */
+
+  /* Radius: ROUND_FOUR 기준 (buttons/inputs = md 6px, cards = lg 8px) */
+  --radius: 0.5rem; /* 8px = lg */
+
+  /* Sidebar: surface_dim (anchor) + on_surface */
+  --sidebar: #cfdce3;
+  --sidebar-foreground: #2a3439;
+  --sidebar-primary: #0053db;
+  --sidebar-primary-foreground: #f8f7ff;
+  --sidebar-accent: #c7d3ff; /* primary_fixed_dim (selected soft glow) */
+  --sidebar-accent-foreground: #0048bf;
+  --sidebar-border: #a9b4b9;
+  --sidebar-ring: #0053db;
+
+  /* Executive Lens 확장 토큰 (직접 참조용) */
+  --surface-container: #e8eff3;
+  --surface-container-high: #e1e9ee;
+  --surface-container-highest: #d9e4ea;
+  --surface-dim: #cfdce3;
+  --on-surface: #2a3439;
+  --on-surface-variant: #566166;
+  --outline: #717c82;
+  --outline-variant: #a9b4b9;
+  --primary-dim: #0048c1;
+  --secondary-container: #d5e3fc;
+  --on-secondary-container: #455367;
 }
 
+/*
+ * Dark mode: Stitch Admin Console Layout에는 다크 테마 미정의.
+ * 임시로 Executive Lens 톤을 유지하되 명도 반전.
+ * 정식 다크 토큰은 별도 디자인 슬라이스에서 확정 예정.
+ */
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --background: #0b0f17;
+  --foreground: #f0f4f7;
+
+  --card: #131b2e;
+  --card-foreground: #f0f4f7;
+
+  --popover: #171f33;
+  --popover-foreground: #f0f4f7;
+
+  --primary: #618bff; /* inverse_primary — 다크 배경 위에 lift된 파랑 */
+  --primary-foreground: #001b3d;
+
+  --secondary: #283044;
+  --secondary-foreground: #f0f4f7;
+
+  --muted: #131b2e;
+  --muted-foreground: #a9b4b9;
+
+  --accent: #2d3449;
+  --accent-foreground: #dbe1ff;
+
+  --destructive: #fe8983;
+
+  --border: rgba(169, 180, 185, 0.15);
+  --input: #222a3d;
+  --ring: #618bff;
+
+  --chart-1: #618bff;
+  --chart-2: #bcc7de;
+  --chart-3: #d4cdee;
+  --chart-4: #909097;
+  --chart-5: #45464d;
+
+  --sidebar: #060e20;
+  --sidebar-foreground: #f0f4f7;
+  --sidebar-primary: #618bff;
+  --sidebar-primary-foreground: #001b3d;
+  --sidebar-accent: #2d3449;
+  --sidebar-accent-foreground: #dbe1ff;
+  --sidebar-border: rgba(169, 180, 185, 0.15);
+  --sidebar-ring: #618bff;
+
+  /* Executive Lens 확장 토큰 (다크) */
+  --surface-container: #171f33;
+  --surface-container-high: #222a3d;
+  --surface-container-highest: #2d3449;
+  --surface-dim: #0b0f17;
+  --on-surface: #f0f4f7;
+  --on-surface-variant: #a9b4b9;
+  --outline: #909097;
+  --outline-variant: #45464d;
+  --primary-dim: #4a6fe5;
+  --secondary-container: #3e495d;
+  --on-secondary-container: #bcc7de;
 }
 
 @layer base {
