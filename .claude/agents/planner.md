@@ -23,6 +23,21 @@ model: opus
 - 완료 기준은 측정 가능하게
 - 비평 피드백 반드시 반영
 
+### 헌법 준수 (모든 frontend/backend/fullstack/monorepo 공통, 최우선)
+- **반드시 먼저 읽을 것**:
+  1. 루트 `CLAUDE.md` 전문
+  2. `CLAUDE.md`의 "참조 문서" 표에 링크된 모든 문서 — 특히 `docs/rules/**` 전부 (`folder-conventions.md`, `dev-workflow.md`, `commands.md`, `dev-flow.md`)
+  3. `docs/concepts/**` 중 feature와 관련된 항목
+- 이 문서들이 정의한 **폴더 배치·라우트 그룹명·파일명 casing·export 방식·금지 패턴**을 plan이 위반하면 안 됨. 예시:
+  - 라우트 그룹명은 `folder-conventions.md`가 지정한 이름(`(app)` / `(public)` 등)만 사용. 중립/의미를 이유로 임의 작명 금지.
+  - `app/` 하위에 라우팅 파일 외 배치 금지.
+  - 공용 유틸은 `lib/<topic>/`로, 도메인 종속은 `features/<domain>/`로.
+- 규약과 충돌하는 결정이 **불가피한 경우에만** §8에 "규약 예외 요청" 조항 신설:
+  - 위반하는 규약 문서/라인
+  - 왜 예외가 필요한지
+  - 규약 문서도 함께 수정할지 여부(통상 규약 수정이 정답)
+- 규약 예외 요청이 §8에 없는데 plan 내용이 규약과 다르면 critic이 FAIL 처리함.
+
 ### 디자인 참조 소스 규율 (frontend/fullstack/monorepo)
 - `DESIGN_REF`가 주어지면 **소스 종류 무관**(Stitch/Figma/이미지/스케치) **반드시 열어본다**. MCP가 있으면 MCP로, URL이면 WebFetch로, 로컬 폴더면 Read로. 열어본 경로·항목을 §8 서두에 기록(미열람 = FAIL 사유).
 - `DESIGN_REF = none` 또는 미지정일 때는 §11에 "디자인 참조 없음 — 후속 슬라이스에서 확정" 기록하고 §8의 디자인 원본 대조 조항은 생략 가능.
@@ -88,6 +103,9 @@ model: opus
 - **색 토큰 매핑 표**: 역할(사이드바·배경·카드 등) / `var(--*)` / 실제 HEX / 출처(namedColor 명 또는 스크린 발췌).
 - **폰트 로딩**: `next/font` 패밀리 → `--font-*` 변수 연결 계획.
 - **토큰 오버라이드**: design system 원값을 바꾸는 부분과 이유.
+
+### 규약 예외 요청 (있을 때만, 없으면 "없음"으로 기재)
+- 위반하는 규약 문서·라인 / 이유 / 규약 문서 수정 제안
 
 ## 9. 제약 조건
 

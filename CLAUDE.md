@@ -61,6 +61,7 @@ packages/
 4. **BFF 패턴** — 브라우저는 항상 `/api/*` (same-origin). `apps/admin/src/app/api/[...proxy]/route.ts`가 세션 → Bearer로 변환.
 5. **Query Key Factory** — 모든 TanStack Query 키는 팩토리로. 문자열 리터럴 키 금지.
 6. **httpOnly 쿠키 세션** — 토큰은 쿠키로만. localStorage/sessionStorage 금지.
+7. **라우트 그룹 2종** — `app/(app)/` = Shell이 얹히는 인증 필요 콘솔(auth() 가드 hook point 위치). `app/(public)/` = 로그인·에러·공개 페이지(Shell 미적용). 그룹명은 이 두 개로 고정 — `(auth)`/`(protected)` 같은 다른 이름 금지. 상세: [docs/rules/folder-conventions.md](docs/rules/folder-conventions.md).
 
 ## 금지 패턴 (절대 쓰지 말 것)
 

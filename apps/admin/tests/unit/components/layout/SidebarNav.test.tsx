@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, within } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { SidebarNav } from "@/components/layout/SidebarNav";
 
 vi.mock("next/navigation", () => ({
@@ -66,10 +66,6 @@ describe("SidebarNav", () => {
     const activeLink = screen
       .getByText("Dashboard")
       .closest("a") as HTMLElement;
-    const bar = within(activeLink).getByTestId
-      ? null
-      : activeLink.querySelector('span[aria-hidden="true"]');
-    // Fallback: find the aria-hidden span directly
     const accentBar = activeLink.querySelector(
       'span[aria-hidden="true"]',
     ) as HTMLElement | null;
