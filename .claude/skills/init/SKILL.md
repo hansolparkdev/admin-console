@@ -183,6 +183,16 @@ frontend | backend | fullstack
 ## 코드 컨벤션
 
 (린트가 자동 적용. 예외 사례만 여기에.)
+
+## 참조 문서
+
+| 주제 | 문서 |
+| --- | --- |
+| 금지 패턴 | [docs/rules/forbidden-patterns.md](docs/rules/forbidden-patterns.md) |
+| 폴더 규약 | [docs/rules/folder-conventions.md](docs/rules/folder-conventions.md) |
+| 명령어 | [docs/rules/commands.md](docs/rules/commands.md) |
+| 에이전트 워크플로우 | [docs/rules/dev-workflow.md](docs/rules/dev-workflow.md) |
+| SDD 트랙 | [docs/rules/dev-flow.md](docs/rules/dev-flow.md) |
 ```
 
 ### 모노레포 (타입 4)
@@ -231,6 +241,74 @@ apps/web:
 apps/api:
 - 단위 테스트: Jest (맞나요?)
 - DB: (없음)
+```
+
+## Step 6.5: docs/rules/ 생성
+
+`docs/rules/` 디렉토리 생성. `dev-workflow.md`·`dev-flow.md`는 하네스 고정 파일로 복사.
+
+아래 3개 파일은 **기존 프로젝트 여부**에 따라 다르게 생성:
+
+### 기존 프로젝트 (코드베이스 존재)
+
+코드베이스를 분석해서 초안 자동 작성:
+
+- **forbidden-patterns.md**: 실제 코드에서 안티패턴 탐지 (localStorage 토큰 저장, any 남용, useEffect fetch 등). 발견된 패턴은 "현재 위반 사례" 주석과 함께 금지 항목으로 등재. 발견 안 된 것도 스택 기반으로 관련 항목 추가.
+- **folder-conventions.md**: 실제 폴더·파일 구조 읽어서 현재 규약 역산. 파일명 패턴, 테스트 위치, export 방식 등 현황 기술 후 "TO-DO: 정비 필요" 항목 표시.
+- **commands.md**: `package.json` / `pyproject.toml` / `Makefile` 등에서 실제 스크립트 추출해서 명령어 채움.
+
+### 신규 프로젝트
+
+플레이스홀더 주석으로 기본 틀만 생성:
+
+**forbidden-patterns.md**:
+```markdown
+# 금지 패턴
+<!-- 이 파일은 에이전트 프리로드 대상입니다. 위반 = 즉시 reject. -->
+<!-- 프로젝트 규약에 맞게 항목을 채워주세요. -->
+
+## 보안
+<!-- 예: 토큰을 localStorage에 저장 금지 -->
+
+## 타입/품질
+<!-- 예: any 남용, @ts-ignore 무근거 사용 금지 -->
+
+## 프로세스
+<!-- 예: Conventional Commits 위반 금지 -->
+```
+
+**folder-conventions.md**:
+```markdown
+# 폴더 규약
+<!-- 이 파일은 에이전트 프리로드 대상입니다. -->
+<!-- 파일명 규칙, 테스트 위치, export 방식 등을 기술해주세요. -->
+
+## 파일명
+<!-- 예: 컴포넌트 PascalCase, 유틸 kebab-case -->
+
+## 테스트 위치
+<!-- 예: tests/unit/ 하위에 src/ 트리 미러링 -->
+
+## Export
+<!-- 예: named export 기본, page.tsx만 default -->
+```
+
+**commands.md**:
+```markdown
+# 명령어
+<!-- 이 파일은 에이전트 프리로드 대상입니다. -->
+
+## 개발 서버
+<!-- 예: pnpm dev -->
+
+## 단위 테스트
+<!-- 전체 / 단일 파일 / 커버리지 -->
+
+## E2E
+<!-- headed(기본) / headless -->
+
+## 보안 스캔
+<!-- 예: pnpm audit -->
 ```
 
 ## Step 7: docs/DESIGN.md 생성 (프론트 포함 타입만)
@@ -294,6 +372,7 @@ git commit -m "chore: 프로젝트 초기화"
 ✓ 훅 설치 (ESLint/Ruff + husky/pre-commit + .claude/hooks)
 ✓ .claudeignore
 ✓ CLAUDE.md {모노레포면: 루트 + apps/*, packages/*}
+✓ docs/rules/ (forbidden-patterns.md · folder-conventions.md · commands.md · dev-workflow.md · dev-flow.md)
 {프론트면: ✓ docs/DESIGN.md}
 ✓ 초기 Git 커밋
 
