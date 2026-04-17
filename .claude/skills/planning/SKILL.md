@@ -79,7 +79,8 @@ critic 호출:
 ✓ plan.md 저장 ({비평 결과: PASS 또는 경고})
 
 다음 단계:
-- /dev {feature}  — 스펙 생성 + 전체 슬라이스 개발
+- /spec {feature}  — 스펙 생성 (plan.md 기반 capability 스펙 산출)
+- /dev {feature}   — 스펙 생성 완료 후 전체 슬라이스 개발
 ```
 
 ## 참고

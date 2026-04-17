@@ -1,11 +1,11 @@
 import "server-only";
+import { auth } from "@/lib/auth";
 
 // Server-side fetcher. Used in Server Components / Route Handlers /
 // Server Actions to reach the internal API directly (no BFF hop).
 //
 // The API_URL is server-only — never imported into a client bundle.
-// When auth (Step 9) lands, this helper will also attach the session's
-// access token as a Bearer header.
+// auth() 세션의 사용자 정보를 내부 헤더로 전달 (BFF 패턴).
 
 const API_URL = process.env.API_URL ?? "http://localhost:3001";
 
@@ -43,10 +43,19 @@ export async function apiServerFetch<T = unknown>(
 ): Promise<T> {
   const url = path.startsWith("/") ? `${API_URL}${path}` : `${API_URL}/${path}`;
 
+  // 세션 JWT에서 Google ID Token을 Bearer로 전달 (BFF 패턴)
+  // email은 ID Token payload에 포함되어 있어 별도 헤더 불필요.
+  const sessionHeaders: Record<string, string> = {};
+  const session = (await auth()) as { idToken?: string } | null;
+  if (session?.idToken) {
+    sessionHeaders["authorization"] = `Bearer ${session.idToken}`;
+  }
+
   const res = await fetch(url, {
     method: options.method ?? "GET",
     headers: {
       "Content-Type": "application/json",
+      ...sessionHeaders,
       ...(options.headers ?? {}),
     },
     body: options.body != null ? JSON.stringify(options.body) : undefined,

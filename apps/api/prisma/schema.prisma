@@ -12,24 +12,33 @@ datasource db {
 }
 
 // Minimal placeholder so the first migration isn't empty.
-// Actual RBAC/IAM models land in a later slice.
 model HealthCheck {
   id        Int      @id @default(autoincrement())
   note      String
   createdAt DateTime @default(now())
 }
 
+// admin-approval: 사용자 상태 Enum
+enum UserStatus {
+  pending
+  active
+  rejected
+}
+
 // google-oidc-login: Google OIDC 인증 사용자 레코드
+// rbac-menu-management: role 필드 제거, userRoles 관계 추가
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
+  id        String     @id @default(cuid())
+  email     String     @unique
   name      String?
   picture   String?
-  provider  String   @default("google")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  provider  String     @default("google")
+  status    UserStatus @default(pending)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
 
-  accounts Account[]
+  accounts  Account[]
+  userRoles UserRoleAssignment[]
 }
 
 // google-oidc-login: OAuth provider 연결 레코드 (Auth.js 호환)
@@ -45,4 +54,58 @@ model Account {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+}
+
+// rbac-menu-management: 역할 모델
+model Role {
+  id          String     @id @default(cuid())
+  name        String     @unique
+  description String?
+  isSystem    Boolean    @default(false)
+  userRoles   UserRoleAssignment[]
+  roleMenus   RoleMenu[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+// rbac-menu-management: 사용자-역할 연결 모델
+model UserRoleAssignment {
+  id        String   @id @default(cuid())
+  userId    String
+  roleId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, roleId])
+}
+
+// rbac-menu-management: 메뉴 모델 (트리 구조)
+model Menu {
+  id        String   @id @default(cuid())
+  name      String
+  path      String?
+  icon      String?
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  parentId  String?
+  parent    Menu?    @relation("MenuChildren", fields: [parentId], references: [id])
+  children  Menu[]   @relation("MenuChildren")
+  roleMenus RoleMenu[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// rbac-menu-management: 역할-메뉴 권한 모델
+model RoleMenu {
+  id        String  @id @default(cuid())
+  roleId    String
+  menuId    String
+  canRead   Boolean @default(false)
+  canWrite  Boolean @default(false)
+  canDelete Boolean @default(false)
+  role      Role    @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  menu      Menu    @relation(fields: [menuId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, menuId])
 }

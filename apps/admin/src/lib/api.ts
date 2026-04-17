@@ -28,7 +28,9 @@ type JsonValue =
 
 interface RequestOptions {
   method?: HttpMethod;
-  body?: JsonValue;
+  // body는 JSON.stringify로 직렬화되므로 직렬화 가능한 모든 값 허용.
+  // JsonValue 인덱스 시그니처 없이도 안전하게 사용하기 위해 unknown 허용.
+  body?: unknown;
   signal?: AbortSignal;
   headers?: Record<string, string>;
 }

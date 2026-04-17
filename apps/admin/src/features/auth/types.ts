@@ -33,3 +33,29 @@ export interface VerifyDeniedResponse {
 }
 
 export type VerifyResponse = VerifyAllowedResponse | VerifyDeniedResponse;
+
+/** GET /auth/me 메뉴 트리 노드 */
+export interface MenuTreeNode {
+  id: string;
+  name: string;
+  path: string | null;
+  icon: string | null;
+  order: number;
+  permissions: {
+    canRead: boolean;
+    canWrite: boolean;
+    canDelete: boolean;
+  };
+  children: MenuTreeNode[];
+}
+
+/** GET /auth/me 응답 — roles[], menus[] 포함 */
+export interface MeResponse {
+  id: string;
+  email: string;
+  name: string | null;
+  picture: string | null;
+  status: string;
+  roles: string[];
+  menus: MenuTreeNode[];
+}

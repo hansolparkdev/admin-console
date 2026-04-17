@@ -1,13 +1,13 @@
 import "server-only";
 import type { NextRequest } from "next/server";
+import { auth } from "@/lib/auth";
 
 // BFF proxy. Browser calls /api/... and this handler forwards to the
 // internal API. Keeping API_URL server-only means the backend host is
 // never exposed in bundles (`NEXT_PUBLIC_` is forbidden — CLAUDE.md).
 //
-// Step 9 will add `auth()` here to pull the session and attach a Bearer
-// token. For now this is a pure pass-through so admin↔api wiring can be
-// exercised before auth lands.
+// auth() 세션 JWT에서 Google ID Token을 꺼내 Authorization: Bearer로 전달한다.
+// NestJS SessionAuthGuard/SuperAdminGuard가 Google JWKS로 서명 검증한다.
 
 const API_URL = process.env.API_URL ?? "http://localhost:3001";
 
@@ -27,6 +27,13 @@ async function proxy(
   headers.delete("host");
   headers.delete("connection");
   headers.delete("content-length");
+
+  // 세션 JWT에서 Google ID Token을 꺼내 Bearer로 전달 (BFF 패턴)
+  // email은 ID Token payload 클레임에 포함되어 있어 별도 헤더 불필요.
+  const session = (await auth()) as { idToken?: string } | null;
+  if (session?.idToken) {
+    headers.set("authorization", `Bearer ${session.idToken}`);
+  }
 
   const method = req.method.toUpperCase();
   const hasBody = method !== "GET" && method !== "HEAD";

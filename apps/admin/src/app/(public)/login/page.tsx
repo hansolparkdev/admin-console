@@ -26,20 +26,17 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         width: "100%",
       }}
     >
-      {/* 좌 패널 — 55% 다크 */}
+      {/* 좌 패널 — 55% 다크 (md 이상에서만 표시) */}
       <div
         aria-hidden="true"
+        className="md:flex hidden flex-col justify-between"
         style={{
-          display: "none",
           width: "55%",
           backgroundColor: "#0f172a",
           position: "relative",
           overflow: "hidden",
-          flexDirection: "column",
-          justifyContent: "space-between",
           padding: "48px",
         }}
-        className="md:flex"
       >
         {/* 우상단 블루 글로우 */}
         <div

@@ -14,6 +14,7 @@ describe('AuthController', () => {
   const mockAuthService = {
     checkAllowed: jest.fn(),
     upsertUser: jest.fn(),
+    me: jest.fn(),
   };
 
   const mockResponse = {
@@ -35,9 +36,17 @@ describe('AuthController', () => {
     jest.clearAllMocks();
   });
 
-  describe('POST /auth/verify — Google ID Token 검증', () => {
-    it('허용된 계정이면 200 + { allowed: true } 반환', async () => {
-      mockAuthService.checkAllowed.mockReturnValue({ allowed: true });
+  describe('POST /auth/verify — Google ID Token 검증 + DB status 조회', () => {
+    it('active 계정이면 200 + { allowed: true, user } 반환', async () => {
+      const allowedResult = {
+        allowed: true,
+        user: {
+          email: 'user@example.com',
+          name: 'Test User',
+          picture: 'https://example.com/pic.jpg',
+        },
+      };
+      mockAuthService.checkAllowed.mockResolvedValue(allowedResult);
       mockAuthService.upsertUser.mockResolvedValue({
         id: 'user-1',
         email: 'user@example.com',
@@ -57,43 +66,70 @@ describe('AuthController', () => {
       });
 
       expect(result.allowed).toBe(true);
-      expect(result.user).toMatchObject({ email: 'user@example.com' });
     });
 
-    it('비인가 계정이면 403 + { allowed: false, reason }', async () => {
-      mockAuthService.checkAllowed.mockReturnValue({
+    it('pending 계정이면 { allowed: false, reason: "pending_approval" } 반환', async () => {
+      mockAuthService.checkAllowed.mockResolvedValue({
         allowed: false,
-        reason: 'unauthorized_domain',
+        reason: 'pending_approval',
       });
 
       const result = await controller.verify({
         idToken: 'google-id-token',
-        email: 'user@gmail.com',
-        name: 'Personal User',
+        email: 'new@example.com',
+        name: 'New User',
         sub: 'google-sub-456',
       });
 
       expect(result.allowed).toBe(false);
       if (!result.allowed) {
-        expect(result.reason).toBe('unauthorized_domain');
+        expect(result.reason).toBe('pending_approval');
+      }
+    });
+
+    it('rejected 계정이면 { allowed: false, reason: "rejected" } 반환', async () => {
+      mockAuthService.checkAllowed.mockResolvedValue({
+        allowed: false,
+        reason: 'rejected',
+      });
+
+      const result = await controller.verify({
+        idToken: 'google-id-token',
+        email: 'banned@example.com',
+        name: 'Banned User',
+        sub: 'google-sub-789',
+      });
+
+      expect(result.allowed).toBe(false);
+      if (!result.allowed) {
+        expect(result.reason).toBe('rejected');
       }
     });
   });
 
   describe('GET /auth/me — 세션 사용자 정보', () => {
-    it('요청 user 객체를 반환한다', () => {
-      const mockUser = {
+    it('request.user.email로 me() 반환 (SessionAuthGuard가 주입)', async () => {
+      const mockMe = {
         id: 'user-1',
         email: 'user@example.com',
         name: 'Test User',
-        picture: 'https://example.com/pic.jpg',
-        provider: 'google',
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        picture: null,
+        status: 'active',
+        roles: ['ADMIN'],
+        menus: [],
       };
+      mockAuthService.me.mockResolvedValue(mockMe);
 
-      const result = controller.me({ user: mockUser });
-      expect(result).toEqual(mockUser);
+      const result = await controller.me({
+        user: { email: 'user@example.com' },
+      });
+      expect(result).toEqual(mockMe);
+      expect(mockAuthService.me).toHaveBeenCalledWith('user@example.com');
+    });
+
+    it('request.user 없으면 null 반환', async () => {
+      const result = await controller.me({});
+      expect(result).toBeNull();
     });
   });
 

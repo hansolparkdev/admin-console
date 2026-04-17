@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+
+<html class="light" lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "error": "#9f403d",
+                        "surface-variant": "#d9e4ea",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container": "#e8eff3",
+                        "tertiary-fixed": "#e3dbfd",
+                        "on-tertiary-fixed": "#3e3a54",
+                        "secondary-fixed-dim": "#c7d5ed",
+                        "on-secondary-fixed": "#324053",
+                        "surface-tint": "#0053db",
+                        "outline": "#717c82",
+                        "on-error": "#fff7f6",
+                        "tertiary-dim": "#54506b",
+                        "tertiary": "#605c78",
+                        "inverse-primary": "#618bff",
+                        "surface": "#f7f9fb",
+                        "on-secondary-container": "#455367",
+                        "secondary-fixed": "#d5e3fc",
+                        "tertiary-container": "#e3dbfd",
+                        "on-surface": "#2a3439",
+                        "outline-variant": "#a9b4b9",
+                        "on-primary": "#f8f7ff",
+                        "surface-container-high": "#e1e9ee",
+                        "background": "#f7f9fb",
+                        "on-tertiary-container": "#514d68",
+                        "on-secondary": "#f8f8ff",
+                        "on-background": "#2a3439",
+                        "error-container": "#fe8983",
+                        "primary-fixed-dim": "#c7d3ff",
+                        "on-error-container": "#752121",
+                        "surface-container-low": "#f0f4f7",
+                        "secondary-dim": "#465468",
+                        "on-primary-fixed-variant": "#0050d4",
+                        "on-tertiary-fixed-variant": "#5b5672",
+                        "primary-container": "#dbe1ff",
+                        "on-tertiary": "#fcf7ff",
+                        "primary-fixed": "#dbe1ff",
+                        "on-primary-container": "#0048bf",
+                        "on-surface-variant": "#566166",
+                        "on-primary-fixed": "#003798",
+                        "primary-dim": "#0048c1",
+                        "surface-bright": "#f7f9fb",
+                        "primary": "#0053db",
+                        "surface-container-highest": "#d9e4ea",
+                        "secondary": "#526074",
+                        "error-dim": "#4e0309",
+                        "secondary-container": "#d5e3fc",
+                        "inverse-surface": "#0b0f10",
+                        "tertiary-fixed-dim": "#d4cdee",
+                        "on-secondary-fixed-variant": "#4e5c71",
+                        "surface-dim": "#cfdce3",
+                        "inverse-on-surface": "#9a9d9f"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-manrope { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .status-chip { @apply px-3 py-1 text-xs font-semibold rounded-full; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface antialiased overflow-x-hidden">
+<!-- SideNavBar Anchor -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-slate-900 flex flex-col py-6 z-50 shadow-2xl">
+<div class="px-6 mb-10 flex items-center gap-3">
+<div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-lg">admin_panel_settings</span>
+</div>
+<div>
+<h1 class="text-xl font-bold text-white font-manrope tracking-tight">Console</h1>
+<p class="text-[10px] text-slate-500 uppercase tracking-widest font-semibold">Admin v1.0</p>
+</div>
+</div>
+<nav class="flex-1 px-4 space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-slate-100 hover:bg-slate-800/50 transition-colors rounded-xl font-manrope font-semibold tracking-tight" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span>대시보드</span>
+</a>
+<!-- Active State: 관리자 관리 -->
+<a class="flex items-center gap-3 px-4 py-3 bg-blue-600/10 text-blue-400 border-r-4 border-blue-500 transition-all rounded-l-xl font-manrope font-semibold tracking-tight" href="#">
+<span class="material-symbols-outlined">admin_panel_settings</span>
+<span>관리자 관리</span>
+</a>
+</nav>
+<div class="px-6 pt-6 mt-auto border-t border-slate-800/50">
+<div class="flex items-center gap-3">
+<img alt="Executive Logo" class="w-8 h-8 rounded" data-alt="minimalist executive logo with geometric lines in corporate blue and white" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAcx74mnVsfyEN2sYbC-mWskSrBDAmGlsyw_aYRvN1TVib24oC9eU9OigE651cRy9TI9kHirVdUbKu7PZCqzVx-2clEH9oi2GqFP3_CABm3YBdOVB8FyiJsMQNmnq9PT2juV98kboEDVPU0RZ0GPyUHCOK1IclDWG8TZdHL9D3gYchzMaj4QsjESPJIV00RwNGt2uuguYH40pbxbJ7mYApVgBtcbjfIXQRl39iGCjryvWGGI-zXZByaYAuoJX8iigSgJKx22lGaNNE"/>
+<div>
+<p class="text-xs font-bold text-white">Executive Lens</p>
+<p class="text-[10px] text-slate-500">System Integrated</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- TopAppBar Anchor -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 bg-white/80 backdrop-blur-md z-40 flex items-center justify-between px-8 shadow-sm">
+<div class="flex items-center gap-4 flex-1">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-full py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-blue-500/20 placeholder-outline-variant" placeholder="사용자 검색..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2">
+<button class="w-10 h-10 flex items-center justify-center text-slate-500 hover:text-blue-500 transition-colors">
+<span class="material-symbols-outlined">dark_mode</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center text-slate-500 hover:text-blue-500 transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+</button>
+</div>
+<div class="h-8 w-[1px] bg-outline-variant/20 mx-2"></div>
+<div class="flex items-center gap-3">
+<div class="text-right hidden sm:block">
+<p class="text-sm font-bold text-on-surface font-manrope">관리자님</p>
+<p class="text-[10px] text-on-surface-variant font-medium">Super Admin</p>
+</div>
+<img alt="User profile" class="w-10 h-10 rounded-full bg-surface-container-highest" data-alt="professional portrait of a system administrator in a modern office setting, soft professional lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDyKraAyhnNU6-whnJOXiXVfMfwjGZpafLqeu9wzoWbKE29PKON1aMGIEaRWJ0zeR-v22UfmxWAaaDdDlFG1TyQmNOtvx6MWVw-LsTBVkkRTf0_565-GvRzWC41OIH6XYEQbjOzg5V3kcerANi58qweT2sdqQOsEeNTK43vfcKw9BIMAFGLwQzZLqNtcOyHieUdyEKrKojtt1pou4qdV6gAbYkQPeFRJxb8CLJOSsdkO6R_ZDTRby8Y4W4DzY-TOe6WDpeH-TekHEk"/>
+</div>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="ml-64 pt-16 min-h-screen">
+<div class="p-10 max-w-7xl mx-auto">
+<!-- Page Header -->
+<div class="mb-10">
+<h2 class="text-3xl font-extrabold text-on-surface font-manrope tracking-tight mb-2">관리자 관리</h2>
+<p class="text-on-surface-variant text-base">관리자 계정을 승인·거절·복구할 수 있습니다.</p>
+</div>
+<!-- Tab Controls -->
+<div class="flex items-center gap-2 mb-8 p-1 bg-surface-container-low rounded-full w-fit">
+<button class="px-6 py-2 rounded-full text-sm font-semibold text-on-surface-variant hover:text-on-surface transition-all">전체</button>
+<button class="px-6 py-2 rounded-full text-sm font-bold bg-primary text-white shadow-md transition-all">승인 대기</button>
+<button class="px-6 py-2 rounded-full text-sm font-semibold text-on-surface-variant hover:text-on-surface transition-all">활성</button>
+<button class="px-6 py-2 rounded-full text-sm font-semibold text-on-surface-variant hover:text-on-surface transition-all">거절됨</button>
+</div>
+<!-- Data Table Container -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm">
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead>
+<tr class="bg-surface-container-low">
+<th class="px-8 py-5 text-[0.75rem] font-bold text-on-surface-variant uppercase tracking-[0.05em] font-label">사용자 이름</th>
+<th class="px-6 py-5 text-[0.75rem] font-bold text-on-surface-variant uppercase tracking-[0.05em] font-label">이메일 주소</th>
+<th class="px-6 py-5 text-[0.75rem] font-bold text-on-surface-variant uppercase tracking-[0.05em] font-label">역할</th>
+<th class="px-6 py-5 text-[0.75rem] font-bold text-on-surface-variant uppercase tracking-[0.05em] font-label">상태</th>
+<th class="px-8 py-5 text-[0.75rem] font-bold text-on-surface-variant uppercase tracking-[0.05em] font-label text-right">액션</th>
+</tr>
+</thead>
+<tbody class="divide-y-0">
+<!-- Row 1 -->
+<tr class="bg-surface-container-low">
+<td class="px-8 py-5">
+<a class="text-primary font-bold hover:underline" href="#">김영희</a>
+</td>
+<td class="px-6 py-5 text-on-surface-variant">younghee.kim@lens.com</td>
+<td class="px-6 py-5">
+<span class="text-xs font-semibold px-2 py-1 bg-surface-container rounded text-on-surface-variant">관리자</span>
+</td>
+<td class="px-6 py-5">
+<span class="px-3 py-1 rounded-full text-[11px] font-bold bg-orange-100 text-orange-700">승인 대기</span>
+</td>
+<td class="px-8 py-5 text-right">
+<div class="flex items-center justify-end gap-2">
+<button class="px-4 py-1.5 bg-[#2e7d32] text-white text-xs font-bold rounded-lg hover:opacity-90 transition-all">승인</button>
+<button class="px-4 py-1.5 bg-error text-white text-xs font-bold rounded-lg hover:opacity-90 transition-all">거절</button>
+</div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="bg-surface-container-lowest">
+<td class="px-8 py-5">
+<a class="text-primary font-bold hover:underline" href="#">박철수</a>
+</td>
+<td class="px-6 py-5 text-on-surface-variant">chulsoo.park@lens.com</td>
+<td class="px-6 py-5">
+<span class="text-xs font-semibold px-2 py-1 bg-primary-container/30 text-on-primary-container rounded">슈퍼 관리자</span>
+</td>
+<td class="px-6 py-5">
+<span class="px-3 py-1 rounded-full text-[11px] font-bold bg-blue-100 text-blue-700">활성</span>
+</td>
+<td class="px-8 py-5 text-right">
+<button class="px-4 py-1.5 border border-error text-error text-xs font-bold rounded-lg hover:bg-error/5 transition-all">거절</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="bg-surface-container-low">
+<td class="px-8 py-5">
+<a class="text-primary font-bold hover:underline" href="#">이민수</a>
+</td>
+<td class="px-6 py-5 text-on-surface-variant">minsoo.lee@lens.com</td>
+<td class="px-6 py-5">
+<span class="text-xs font-semibold px-2 py-1 bg-surface-container rounded text-on-surface-variant">관리자</span>
+</td>
+<td class="px-6 py-5">
+<span class="px-3 py-1 rounded-full text-[11px] font-bold bg-blue-100 text-blue-700">활성</span>
+</td>
+<td class="px-8 py-5 text-right">
+<button class="px-4 py-1.5 border border-error text-error text-xs font-bold rounded-lg hover:bg-error/5 transition-all">거절</button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="bg-surface-container-lowest">
+<td class="px-8 py-5">
+<a class="text-primary font-bold hover:underline" href="#">최지우</a>
+</td>
+<td class="px-6 py-5 text-on-surface-variant">jiwoo.choi@lens.com</td>
+<td class="px-6 py-5">
+<span class="text-xs font-semibold px-2 py-1 bg-surface-container rounded text-on-surface-variant">관리자</span>
+</td>
+<td class="px-6 py-5">
+<span class="px-3 py-1 rounded-full text-[11px] font-bold bg-red-100 text-red-700">거절됨</span>
+</td>
+<td class="px-8 py-5 text-right">
+<div class="flex items-center justify-end gap-2">
+<button class="px-4 py-1.5 border border-outline text-on-surface-variant text-xs font-bold rounded-lg hover:bg-surface transition-all">대기로 복구</button>
+<button class="px-4 py-1.5 bg-[#2e7d32] text-white text-xs font-bold rounded-lg hover:opacity-90 transition-all">승인으로 복구</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Footer Pagination (Auxiliary) -->
+<div class="px-8 py-6 bg-surface-container-low flex items-center justify-between">
+<p class="text-xs text-on-surface-variant font-medium">Showing 1 to 4 of 24 members</p>
+<div class="flex gap-2">
+<button class="w-8 h-8 rounded bg-white text-on-surface flex items-center justify-center hover:bg-slate-50 border border-outline-variant/10">
+<span class="material-symbols-outlined text-sm">chevron_left</span>
+</button>
+<button class="w-8 h-8 rounded bg-primary text-white flex items-center justify-center font-bold text-xs shadow-sm">1</button>
+<button class="w-8 h-8 rounded bg-white text-on-surface flex items-center justify-center hover:bg-slate-50 border border-outline-variant/10 text-xs">2</button>
+<button class="w-8 h-8 rounded bg-white text-on-surface flex items-center justify-center hover:bg-slate-50 border border-outline-variant/10 text-xs">3</button>
+<button class="w-8 h-8 rounded bg-white text-on-surface flex items-center justify-center hover:bg-slate-50 border border-outline-variant/10">
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Asymmetric Informational Block -->
+<div class="mt-12 grid grid-cols-1 md:grid-cols-12 gap-8">
+<div class="md:col-span-8 bg-gradient-to-br from-primary to-primary-dim p-8 rounded-2xl text-white shadow-xl flex items-center gap-8 relative overflow-hidden">
+<div class="relative z-10">
+<h3 class="text-xl font-bold font-manrope mb-2">보안 인사이트: 승인 대기중인 관리자</h3>
+<p class="text-white/80 text-sm max-w-md">현재 8명의 신규 관리자가 승인을 기다리고 있습니다. 모든 계정은 보안 규정에 따라 신원 확인 후 활성화하십시오.</p>
+<button class="mt-6 px-6 py-2 bg-white text-primary font-bold rounded-lg text-sm hover:bg-opacity-90 transition-all">일괄 승인 프로세스 시작</button>
+</div>
+<div class="absolute right-[-10%] top-[-20%] opacity-10">
+<span class="material-symbols-outlined text-[200px]" style="font-variation-settings: 'FILL' 1;">security</span>
+</div>
+</div>
+<div class="md:col-span-4 bg-surface-container-highest/30 p-8 rounded-2xl border border-outline-variant/20 flex flex-col justify-center">
+<p class="text-xs text-on-surface-variant font-bold uppercase tracking-widest mb-4">최근 활동</p>
+<ul class="space-y-4">
+<li class="flex items-start gap-3">
+<div class="w-2 h-2 rounded-full bg-[#2e7d32] mt-1.5"></div>
+<div>
+<p class="text-xs font-bold">이민수 관리자 승인 완료</p>
+<p class="text-[10px] text-on-surface-variant">2시간 전 • Super Admin</p>
+</div>
+</li>
+<li class="flex items-start gap-3">
+<div class="w-2 h-2 rounded-full bg-error mt-1.5"></div>
+<div>
+<p class="text-xs font-bold">최지우 계정 거절 처리</p>
+<p class="text-[10px] text-on-surface-variant">어제 • Super Admin</p>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</main>
+</body></html>

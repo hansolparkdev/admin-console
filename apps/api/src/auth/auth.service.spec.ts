@@ -1,19 +1,42 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { UserStatus } from '@prisma/client';
+
+const makeUser = (overrides = {}) => ({
+  id: 'user-1',
+  email: 'user@example.com',
+  name: 'Test User',
+  picture: 'https://example.com/pic.jpg',
+  provider: 'google',
+  status: UserStatus.pending,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  ...overrides,
+});
 
 describe('AuthService', () => {
   let service: AuthService;
-  let prismaService: jest.Mocked<PrismaService>;
-
   const mockPrismaService = {
     user: {
       upsert: jest.fn(),
       findUnique: jest.fn(),
+      findFirst: jest.fn(),
+      count: jest.fn(),
+      update: jest.fn(),
+      create: jest.fn(),
     },
     account: {
       upsert: jest.fn(),
     },
+    role: {
+      findUnique: jest.fn(),
+    },
+    userRoleAssignment: {
+      upsert: jest.fn(),
+      findMany: jest.fn(),
+    },
+    $transaction: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -25,86 +48,121 @@ describe('AuthService', () => {
     }).compile();
 
     service = module.get<AuthService>(AuthService);
-    prismaService = module.get(PrismaService);
   });
 
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  describe('verifyGoogleToken', () => {
-    describe('허용 도메인·목록 미설정 (개발 환경)', () => {
-      it('ALLOWED_DOMAINS, ALLOWED_EMAILS 모두 비어 있으면 전체 허용', () => {
-        const originalDomains = process.env.ALLOWED_DOMAINS;
-        const originalEmails = process.env.ALLOWED_EMAILS;
-        delete process.env.ALLOWED_DOMAINS;
-        delete process.env.ALLOWED_EMAILS;
+  // ─── checkAllowed (DB status 기반) ─────────────────────────────────────────
+  describe('checkAllowed', () => {
+    it('신규 사용자: pending으로 upsert 후 pending_approval 반환', async () => {
+      mockPrismaService.user.count.mockResolvedValue(1); // 이미 사용자 있음
+      const pendingUser = makeUser({ status: UserStatus.pending });
+      mockPrismaService.user.upsert.mockResolvedValue(pendingUser);
 
-        const result = service.checkAllowed('anyone@gmail.com');
+      const result = await service.checkAllowed({
+        email: 'new@example.com',
+        name: 'New User',
+        picture: null,
+        providerAccountId: 'sub-123',
+      });
 
-        expect(result).toEqual({ allowed: true });
+      expect(result).toEqual({ allowed: false, reason: 'pending_approval' });
+    });
 
-        process.env.ALLOWED_DOMAINS = originalDomains;
-        process.env.ALLOWED_EMAILS = originalEmails;
+    it('active 사용자: 허용 반환', async () => {
+      mockPrismaService.user.count.mockResolvedValue(1);
+      const activeUser = makeUser({
+        status: UserStatus.active,
+      });
+      mockPrismaService.user.upsert.mockResolvedValue(activeUser);
+
+      const result = await service.checkAllowed({
+        email: 'active@example.com',
+        name: 'Active User',
+        picture: null,
+        providerAccountId: 'sub-456',
+      });
+
+      expect(result).toEqual({
+        allowed: true,
+        user: expect.objectContaining({ email: activeUser.email }),
       });
     });
 
-    describe('허용된 조직 도메인 계정', () => {
-      it('ALLOWED_DOMAINS=example.com 이면 user@example.com 허용', () => {
-        const original = process.env.ALLOWED_DOMAINS;
-        process.env.ALLOWED_DOMAINS = 'example.com';
-        delete process.env.ALLOWED_EMAILS;
+    it('rejected 사용자: rejected 반환', async () => {
+      mockPrismaService.user.count.mockResolvedValue(1);
+      const rejectedUser = makeUser({ status: UserStatus.rejected });
+      mockPrismaService.user.upsert.mockResolvedValue(rejectedUser);
 
-        const result = service.checkAllowed('user@example.com');
+      const result = await service.checkAllowed({
+        email: 'rejected@example.com',
+        name: 'Rejected User',
+        picture: null,
+        providerAccountId: 'sub-789',
+      });
 
-        expect(result).toEqual({ allowed: true });
-        process.env.ALLOWED_DOMAINS = original;
+      expect(result).toEqual({ allowed: false, reason: 'rejected' });
+    });
+
+    it('DB 관리자 0명(최초 사용자): active로 등록', async () => {
+      mockPrismaService.user.count.mockResolvedValue(0);
+      const bootstrapUser = makeUser({
+        status: UserStatus.active,
+      });
+      // $transaction 내부에서 upsert 호출을 시뮬레이션
+      mockPrismaService.$transaction.mockImplementation(
+        async (fn: (tx: typeof mockPrismaService) => Promise<unknown>) => {
+          return fn(mockPrismaService);
+        },
+      );
+      mockPrismaService.user.upsert.mockResolvedValue(bootstrapUser);
+      // bootstrapFirstUser 내부: SUPER_ADMIN 역할 찾기 + UserRoleAssignment 연결
+      mockPrismaService.role.findUnique.mockResolvedValue(null); // 역할 없으면 skip
+      mockPrismaService.userRoleAssignment.upsert.mockResolvedValue({});
+
+      const result = await service.checkAllowed({
+        email: 'first@example.com',
+        name: 'First User',
+        picture: null,
+        providerAccountId: 'sub-first',
+      });
+
+      expect(result).toEqual({
+        allowed: true,
+        user: expect.objectContaining({ email: bootstrapUser.email }),
       });
     });
 
-    describe('비인가 개인 Gmail 계정', () => {
-      it('ALLOWED_DOMAINS=example.com 이면 user@gmail.com 거부', () => {
-        const original = process.env.ALLOWED_DOMAINS;
-        process.env.ALLOWED_DOMAINS = 'example.com';
-        delete process.env.ALLOWED_EMAILS;
+    it('부트스트랩 경합: 트랜잭션 내 count가 1이면 pending으로 처리', async () => {
+      mockPrismaService.user.count
+        .mockResolvedValueOnce(0) // 첫 count (트랜잭션 전)
+        .mockResolvedValueOnce(1); // 트랜잭션 내 count (이미 선점됨)
 
-        const result = service.checkAllowed('user@gmail.com');
+      mockPrismaService.$transaction.mockImplementation(
+        async (fn: (tx: typeof mockPrismaService) => Promise<unknown>) => {
+          return fn(mockPrismaService);
+        },
+      );
+      const pendingUser = makeUser({ status: UserStatus.pending });
+      mockPrismaService.user.upsert.mockResolvedValue(pendingUser);
 
-        expect(result).toEqual({
-          allowed: false,
-          reason: 'unauthorized_domain',
-        });
-        process.env.ALLOWED_DOMAINS = original;
+      const result = await service.checkAllowed({
+        email: 'race@example.com',
+        name: 'Race User',
+        picture: null,
+        providerAccountId: 'sub-race',
       });
-    });
 
-    describe('허용 목록에 명시된 개인 계정', () => {
-      it('ALLOWED_EMAILS에 명시된 이메일은 도메인 무관 허용', () => {
-        const originalDomains = process.env.ALLOWED_DOMAINS;
-        const originalEmails = process.env.ALLOWED_EMAILS;
-        process.env.ALLOWED_DOMAINS = 'example.com';
-        process.env.ALLOWED_EMAILS = 'special@gmail.com';
-
-        const result = service.checkAllowed('special@gmail.com');
-
-        expect(result).toEqual({ allowed: true });
-        process.env.ALLOWED_DOMAINS = originalDomains;
-        process.env.ALLOWED_EMAILS = originalEmails;
-      });
+      expect(result).toEqual({ allowed: false, reason: 'pending_approval' });
     });
   });
 
+  // ─── upsertUser (기존 유지) ─────────────────────────────────────────────────
   describe('upsertUser', () => {
     it('최초 로그인 시 User·Account 레코드를 생성한다', async () => {
-      const mockUser = {
-        id: 'user-1',
-        email: 'user@example.com',
-        name: 'Test User',
-        picture: 'https://example.com/pic.jpg',
-        provider: 'google',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+      const mockUser = makeUser();
       mockPrismaService.user.upsert.mockResolvedValue(mockUser);
       mockPrismaService.account.upsert.mockResolvedValue({
         id: 'account-1',
@@ -133,15 +191,7 @@ describe('AuthService', () => {
     });
 
     it('재로그인 시 기존 User 레코드를 유지한다', async () => {
-      const existingUser = {
-        id: 'user-1',
-        email: 'user@example.com',
-        name: 'Test User',
-        picture: 'https://example.com/pic.jpg',
-        provider: 'google',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+      const existingUser = makeUser();
       mockPrismaService.user.upsert.mockResolvedValue(existingUser);
       mockPrismaService.account.upsert.mockResolvedValue({
         id: 'account-1',
@@ -153,7 +203,6 @@ describe('AuthService', () => {
         expiresAt: null,
       });
 
-      // 두 번 호출해도 같은 user가 반환됨
       await service.upsertUser({
         email: 'user@example.com',
         name: 'Test User',
@@ -168,7 +217,6 @@ describe('AuthService', () => {
         providerAccountId: 'google-sub-123',
       });
 
-      // upsert는 create 없이 update 경로를 탄다 — 중복 없음
       expect(mockPrismaService.user.upsert).toHaveBeenCalledTimes(2);
       expect(secondCall.id).toBe('user-1');
     });

@@ -70,6 +70,28 @@
 
 ## MODIFIED Requirements
 
+### Requirement: active 상태 검증 강화
+
+세션이 존재하더라도 DB `User.status !== 'active'`인 경우 콘솔 진입을 차단하고 `/login`으로 리디렉션한다. 세션 오브젝트에 `status`와 `role` 필드가 포함된다.
+
+#### Scenario: pending 상태 세션 — 콘솔 진입 차단
+- **Given** 사용자가 유효한 세션 쿠키를 보유하고 있으나 세션의 `status = pending`이고
+- **When** `(app)` 라우트 그룹의 임의 경로에 접근하면
+- **Then** `(app)/layout.tsx`에서 `session.user.status !== 'active'`를 감지하여 `/login`으로 리디렉션된다
+
+#### Scenario: rejected 상태 세션 — 콘솔 진입 차단
+- **Given** 사용자가 유효한 세션 쿠키를 보유하고 있으나 세션의 `status = rejected`이고
+- **When** `(app)` 라우트 그룹의 임의 경로에 접근하면
+- **Then** `(app)/layout.tsx`에서 `session.user.status !== 'active'`를 감지하여 `/login`으로 리디렉션된다
+
+#### Scenario: 세션 타입에 status/role 포함
+- **Given** Auth.js 세션이 발급될 때
+- **When** `session` 오브젝트를 참조하면
+- **Then** `session.user.status` (`pending | active | rejected`)와 `session.user.role` (`super_admin | admin`) 필드가 포함되어 있다
+- **And** TypeScript 타입(`next-auth.d.ts` 확장)에서 해당 필드가 타입 안전하게 접근 가능하다
+
+---
+
 ### Requirement: app-entry 루트 진입점 분기 (기존 app-entry 수정)
 
 루트 `page.tsx`가 세션 여부를 확인하여 인증 사용자는 콘솔 기본 화면으로, 미인증 사용자는 로그인 화면으로 분기한다.

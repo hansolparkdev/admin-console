@@ -9,6 +9,15 @@
             "command": "bash .claude/hooks/pre_edit.sh"
           }
         ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/pre_bash_server.sh"
+          }
+        ]
       }
     ]
   }

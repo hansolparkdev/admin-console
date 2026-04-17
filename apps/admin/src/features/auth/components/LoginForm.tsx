@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { useState, useEffect } from "react";
+import { signIn, signOut } from "next-auth/react";
 import { LoginErrorBanner } from "./LoginErrorBanner";
+import { parseAuthError } from "../parse-auth-error";
 
 export interface LoginFormProps {
   /** Auth.js callbackUrl — 로그인 성공 후 이동할 경로 */
@@ -18,7 +19,9 @@ export interface LoginFormProps {
  * UX 포인트:
  * - 이버로우 "로그인" + 헤드라인 "콘솔에 접속하세요" + 서브카피
  * - Google 로그인 버튼: 클릭 시 비활성·로딩 표시
- * - 인포 박스: 기본 상태 / 에러 배너
+ * - pending_approval → "승인 대기 중입니다." 메시지 + signOut
+ * - rejected → "접근이 거절되었습니다." 메시지 + signOut
+ * - 알 수 없는 에러 → LoginErrorBanner (signOut 없음)
  * - 법적 고지 + 푸터 링크 + 버전 배지
  */
 export function LoginForm({
@@ -26,6 +29,18 @@ export function LoginForm({
   error,
 }: LoginFormProps) {
   const [isPending, setIsPending] = useState(false);
+
+  const parsedError = parseAuthError(error, undefined);
+
+  // pending_approval / rejected 에러 시 자동 signOut
+  useEffect(() => {
+    if (
+      parsedError?.type === "pending_approval" ||
+      parsedError?.type === "rejected"
+    ) {
+      void signOut({ redirectTo: "/login" });
+    }
+  }, [parsedError?.type]); // parsedError.type만 의존 — signOut은 안정적인 참조
 
   const handleGoogleSignIn = async () => {
     setIsPending(true);
@@ -82,11 +97,50 @@ export function LoginForm({
           lineHeight: "1.6",
         }}
       >
-        조직 Google 계정으로 안전하게 로그인합니다.
+        Google 계정으로 안전하게 로그인합니다.
       </p>
 
-      {/* 에러 배너 */}
-      <LoginErrorBanner error={error} />
+      {/* 상태별 에러 메시지 */}
+      {parsedError?.type === "pending_approval" && (
+        <div
+          role="alert"
+          style={{
+            padding: "12px 14px",
+            borderRadius: "8px",
+            backgroundColor: "rgba(234, 179, 8, 0.08)",
+            border: "1px solid rgba(234, 179, 8, 0.3)",
+            fontSize: "13px",
+            color: "#92400e",
+            lineHeight: "1.5",
+            marginBottom: "16px",
+          }}
+        >
+          승인 대기 중입니다. 관리자 승인 후 다시 로그인해 주세요.
+        </div>
+      )}
+
+      {parsedError?.type === "rejected" && (
+        <div
+          role="alert"
+          style={{
+            padding: "12px 14px",
+            borderRadius: "8px",
+            backgroundColor: "rgba(239, 68, 68, 0.08)",
+            border: "1px solid rgba(239, 68, 68, 0.3)",
+            fontSize: "13px",
+            color: "#991b1b",
+            lineHeight: "1.5",
+            marginBottom: "16px",
+          }}
+        >
+          접근이 거절되었습니다. 관리자에게 문의해 주세요.
+        </div>
+      )}
+
+      {/* 알 수 없는 에러 — LoginErrorBanner */}
+      {(!parsedError || parsedError.type === "unknown") && (
+        <LoginErrorBanner error={error} />
+      )}
 
       {/* Google 로그인 버튼 */}
       <button
@@ -170,7 +224,7 @@ export function LoginForm({
           marginBottom: "24px",
         }}
       >
-        조직 계정만 허용됩니다. 개인 Gmail 계정은 거부됩니다.
+        관리자 승인이 필요합니다. 로그인 후 승인 대기 중 안내를 확인하세요.
       </div>
 
       {/* 구분선 */}

@@ -36,6 +36,8 @@ tasks.md 읽고 체크박스 상태 확인:
 
 tasks.md 순서대로 TDD 진행. spec 시나리오는 단위/RTL 테스트 검증 기준.
 
+개발 에이전트 착수 전 필수 프리로드: `forbidden-patterns.md`, `folder-conventions.md`, `docs/rules/dev-workflow.md`
+
 `.status`에 `developed` 기록.
 
 ## Step 3: 리뷰 루프 (최대 3회)

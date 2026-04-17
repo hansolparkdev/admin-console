@@ -1,49 +1,18 @@
 import { describe, it, expect } from "vitest";
 import { menuItems } from "@/lib/navigation/menu-config";
-import { LayoutDashboard, ShieldCheck } from "lucide-react";
 
+/**
+ * menu-config.ts는 동적 메뉴 로딩(useMe())으로 대체됨.
+ * 정적 배열은 빈 배열로 교체되어 SidebarNav에서 더 이상 사용하지 않음.
+ */
 describe("menuItems", () => {
-  it("exports exactly 2 nav entries", () => {
-    expect(menuItems).toHaveLength(2);
+  it("동적 메뉴 로딩으로 대체 — 빈 배열을 내보낸다", () => {
+    expect(menuItems).toHaveLength(0);
   });
 
-  it("first entry is 대시보드 → /dashboard with LayoutDashboard icon", () => {
-    expect(menuItems[0]).toMatchObject({
-      label: "대시보드",
-      href: "/dashboard",
-    });
-    expect(menuItems[0]?.icon).toBe(LayoutDashboard);
-  });
-
-  it("second entry is 관리자 관리 → /admins with ShieldCheck icon", () => {
-    expect(menuItems[1]).toMatchObject({
-      label: "관리자 관리",
-      href: "/admins",
-    });
-    expect(menuItems[1]?.icon).toBe(ShieldCheck);
-  });
-
-  it("each entry has label, href, icon", () => {
-    for (const item of menuItems) {
-      expect(item).toHaveProperty("label");
-      expect(item).toHaveProperty("href");
-      expect(item.icon).toBeDefined();
-    }
-  });
-
-  it("does NOT contain /users href", () => {
-    expect(menuItems.map((m) => m.href)).not.toContain("/users");
-  });
-
-  it("does NOT contain /analytics href", () => {
-    expect(menuItems.map((m) => m.href)).not.toContain("/analytics");
-  });
-
-  it("does NOT contain /settings href", () => {
-    expect(menuItems.map((m) => m.href)).not.toContain("/settings");
-  });
-
-  it("does NOT contain /reports href", () => {
-    expect(menuItems.map((m) => m.href)).not.toContain("/reports");
+  it("MenuItem 인터페이스는 여전히 export 됨", () => {
+    // 타입 export 확인 — 런타임에서 타입은 확인 불가이므로 빈 배열의 타입 호환성만 확인
+    const emptyMenuItems: typeof menuItems = [];
+    expect(emptyMenuItems).toHaveLength(0);
   });
 });

@@ -14,7 +14,11 @@ export default defineConfig({
   testDir: "./e2e",
   fullyParallel: !isCI,
   workers: isCI ? 2 : 1,
-  reporter: isCI ? [["list"], ["html", { open: "never" }]] : "list",
+  // HTML 리포트는 CI/로컬 모두 항상 생성 (Tester 규율: HTML 리포트 필수)
+  // open: "never" — 스크립트 환경에서 hang 방지 (dev-workflow.md)
+  reporter: isCI
+    ? [["list"], ["html", { open: "never" }]]
+    : [["list"], ["html", { open: "never" }]],
   timeout: 30_000,
   expect: { timeout: 5_000 },
 

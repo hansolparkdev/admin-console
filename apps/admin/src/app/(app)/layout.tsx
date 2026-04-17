@@ -1,8 +1,13 @@
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
+import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
 import { auth } from "@/lib/auth";
+import { getQueryClient } from "@/lib/get-query-client";
+import { authKeys } from "@/features/auth/queries";
+import { apiServerFetch } from "@/lib/api-server";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
+import type { MeResponse } from "@/features/auth/types";
 
 export default async function AppLayout({
   children,
@@ -27,8 +32,25 @@ export default async function AppLayout({
     redirect(`/login?callbackUrl=${encodeURIComponent(pathname)}`);
   }
 
+  // session-guard: active 상태가 아닌 사용자(pending/rejected)는 /login으로 리디렉션
+  const userStatus = (session.user as { status?: string } | undefined)?.status;
+  if (userStatus && userStatus !== "active") {
+    redirect("/login");
+  }
+
+  // /auth/me 데이터 서버 prefetch → HydrationBoundary (forbidden-patterns.md §2.3 준수)
+  // apiServerFetch가 undefined를 반환할 수 있으므로 null fallback 처리
+  const queryClient = getQueryClient();
+  await queryClient.prefetchQuery({
+    queryKey: authKeys.me(),
+    queryFn: async () => {
+      const data = await apiServerFetch<MeResponse>("/auth/me");
+      return data ?? null;
+    },
+  });
+
   return (
-    <>
+    <HydrationBoundary state={dehydrate(queryClient)}>
       <Sidebar />
       <Header user={session.user} />
       <div style={{ marginLeft: "var(--sidebar-width)" }}>
@@ -52,6 +74,6 @@ export default async function AppLayout({
           {`© ${new Date().getFullYear()} ADMIN CONSOLE. All rights reserved.`}
         </footer>
       </div>
-    </>
+    </HydrationBoundary>
   );
 }

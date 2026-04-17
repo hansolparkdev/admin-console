@@ -11,9 +11,9 @@ describe("LoginErrorBanner", () => {
   });
 
   describe("비인가 계정 에러", () => {
-    it("unauthorized_domain 에러 코드면 조직 계정 메시지 표시", () => {
+    it("unauthorized_domain 에러 코드면 접근 거절 메시지 표시", () => {
       render(<LoginErrorBanner error="unauthorized_domain" />);
-      expect(screen.getByText(/조직 계정만 허용됩니다/)).toBeInTheDocument();
+      expect(screen.getByText(/접근이 거절되었습니다/)).toBeInTheDocument();
     });
   });
 

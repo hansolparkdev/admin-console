@@ -8,8 +8,7 @@ export interface LoginErrorBannerProps {
 }
 
 const ERROR_MESSAGES: Record<string, string> = {
-  unauthorized_domain:
-    "조직 계정만 허용됩니다. 개인 Gmail 계정으로는 로그인할 수 없습니다.",
+  unauthorized_domain: "접근이 거절되었습니다. 관리자에게 문의해 주세요.",
   OAuthCallback: "Google 인증 중 오류가 발생했습니다. 다시 시도해 주세요.",
   OAuthSignin: "Google 인증 중 오류가 발생했습니다. 다시 시도해 주세요.",
 };
