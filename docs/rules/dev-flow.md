@@ -24,13 +24,15 @@ docs/specs/main/<capability>/spec.md
 docs/specs/archive/YYYY-MM-DD-<feature>/
 ```
 
-## 역할
+## 역할 (/dev 담당 에이전트)
 
 | 역할 | 담당 |
 |------|------|
-| 개발자 | TDD 구현 + 단위/RTL 테스트 + 커버리지 |
+| 개발 에이전트 | TDD 구현 + 단위/RTL 테스트 + 커버리지 |
 | 리뷰어 | 코드 품질 + 금지 패턴 + 런타임 검증 |
 | 테스터 | E2E 선별 + 보안 검증 |
+
+전체 에이전트(기획·비평·아키텍트 포함)는 `.claude/agents/` 참조.
 
 ## 개념 문서
 

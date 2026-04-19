@@ -13,16 +13,12 @@
 착수 전 필수 읽기:
 - `docs/rules/forbidden-patterns.md`
 - `docs/rules/folder-conventions.md`
-- `apps/api/prisma/schema.prisma` (백엔드 코드 작성 시)
-
-Prisma 규율:
-- 서비스 메서드 작성 전 `schema.prisma`에서 필드명·relation 확인
-- `orderBy`, `include`, `where`에 존재하지 않는 필드 사용 금지
+- 스택 특화 규율 있으면 `docs/rules/stack-specific.md`
 
 완료 체크리스트:
-- [ ] `app/**/page.tsx` / `app/**/layout.tsx` 전부 테스트 존재
 - [ ] `CI=1`, `--headless`, `process.env.CI=true` 미사용
 - [ ] 금지 패턴 위반 0
+- [ ] 스택 특화 체크리스트 (`stack-specific.md`) 통과
 
 ## 리뷰어 (Step 3)
 
